@@ -1,6 +1,5 @@
 import operator
 from django import template
-from django.utils.datastructures import SortedDict
 
 register = template.Library()
 

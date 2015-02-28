@@ -220,28 +220,18 @@
 		<footer>
 			<div class="row">
 				<div class="col-lg-12">
-
 					<ul class="list-unstyled">
 						<li class="pull-right"><a href="#top">Back to top</a></li>
-{#						<li><a href="http://news.bootswatch.com" onclick="pageTracker._link(this.href); return false;">Blog</a></li>#}
-{#						<li><a href="http://feeds.feedburner.com/bootswatch">RSS</a></li>#}
-{#						<li><a href="https://twitter.com/bootswatch">Twitter</a></li>#}
-{#						<li><a href="https://github.com/thomaspark/bootswatch/">GitHub</a></li>#}
-{#						<li><a href="../help/#api">API</a></li>#}
-{#						<li><a href="../help/#support">Support</a></li>#}
 					</ul>
 					<p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
-					<p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>.</p>
+					<p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
 					<p>Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a> made by <a href="http://www.kevinsztern.fr/" target="_blank">Kevin Sztern</a>.</p>
-
 				</div>
 			</div>
-
 		</footer>
 	</div>
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="{% static "assets/javascripts/bootstrap.min.js" %}"></script>
-	{% include "snippets/analytics.html" %}
 	<script>
 		function validateEmail(email) {
 			var re = /^\S+@\S+$/;
@@ -257,13 +247,8 @@
 				newLi = $('<li>');
 				newNode = $('<a>').addClass('news-link-unroll').attr('href', '#').attr('data-id', value['id']).html(value['display-name']);
 				newNode.appendTo(newLi);
-				//console.log(newLi);
-				//newNode = '<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>';
 				li.after(newLi);
-				//ul.insertBefore(newNode, li.nextSibling);
-				//ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
 				list_news_rec(value['children'], newLi);
-				//li = newNode;
 			});
 		}
 
@@ -322,7 +307,8 @@
 						});
 						if (count > 9)
 							contents.css("overflow", "scroll");
-
+						// TODO: Improve JS code: do not repeat it two times...
+						//       Problem when closing a conversation
 						$(".news-link").click(function(event) {
 							var news_id = this.getAttribute('data-id');
 							var contents = $("#contents");
@@ -399,13 +385,14 @@
 							else
 								button.find('i').removeClass('fa-check-square').addClass('fa-square');
 						},
-						error: function (request, status, error) {
-							top_alert('Failed to subscribe, please contact us!', 'danger');
+						error: function () {
+
 						}
 					});
 				});
 			{% endif %}
 		})
 	</script>
+	{% include 'snippets/analytics.html' %}
 	</body>
 </html>
