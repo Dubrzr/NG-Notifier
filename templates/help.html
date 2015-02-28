@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+
+{% block contents %}
+	<div class="bs-docs-section">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="page-header">
+					<h1 id="forms">Help</h1>
+				</div>
+			</div>
+		</div>
+
+		<div class="row">
+			<div class="col-lg-6">
+				<h2>Yet another News reader?</h2>
+				<p>Not only... We developed this application with the aim of providing a <b>notifying system</b>.</p>
+				<p>You can indeed subscribe to our notification system by entering your <b>email address</b> in the input present in the navigation bar.</p>
+				<h2>Which type of notifications do you provide?</h2>
+				<p>We provide two types of notifications:</p>
+				<ul>
+					<li>E-mails</li>
+					<li>Pushs with <a href="https://www.pushbullet.com/">Pushbullet</a></li>
+				</ul>
+				<p>Some mobile apps will probably be available soon.</p>
+				<p>For more types of notifications, please contact us.</p>
+				<h2>Will you provide a post form?</h2>
+				<p>It is on the roadmap.</p>
+				<h2>Is there any API?</h2>
+				<p>Not yet, but we will provide a RestAPI soon.</p>
+				<h2>Is there any guarantee?</h2>
+				<p>No, but we will do our best to provide a high availability.</p>
+			</div>
+			<div class="col-lg-6">
+				<h2>How do I subscribe to groups?</h2>
+				<p>First, you will only need a valid email address:</p>
+				<ul>
+					<li>Fill in the input in the navigation bar with your email, and click "Subscribe!"</li>
+					<li>Check your emails, and click the verification link. (Check your spams if you can't find the mail in your box).</li>
+					<li>You will now be redirected to the settings page, and be able to configure your account.</li>
+					<li>Save your configuration and go to the main page.</li>
+					<li>Some checkboxes will now be available just before each group. Check the ones you want to subscribe to and you will receive notifications for them.</li>
+				</ul>
+				<h2>How notifications works?</h2>
+				<p>Every <b>minute</b> our server checks for new news. When a new news is detected, we check if there are any followers for the corresponding group and then we send them emails and/or push notifications.</p>
+				<h2>Are you updating the list of groups frequently?</h2>
+				<p>Yes, every 24 hours we are checking the host for new groups.</p>
+				<h2>You want another host?</h2>
+				<p>Ask us! :)</p>
+			</div>
+		</div>
+	</div>
+{% endblock contents %}

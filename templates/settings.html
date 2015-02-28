@@ -1,0 +1,88 @@
+{% extends "base.html" %}
+
+{% block contents %}
+	<div class="bs-docs-section">
+		<div class="row">
+			<div class="col-lg-12">
+				<div class="page-header">
+					<h1 id="forms">Your settings</h1>
+				</div>
+			</div>
+		</div>
+		<form method="post" class="form-horizontal" action="{% url 'edit_settings' %}">
+			{% csrf_token %}
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="well bs-component">
+						<fieldset>
+							<legend>Account</legend>
+							<div class="form-group">
+								<label for="inputEmail" class="col-lg-2 control-label">Password</label>
+								<div class="col-lg-10">
+									<input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password {% if user.password == '' %}(Not currently defined){% else %}(Already defined){% endif %}">
+								</div>
+							</div>
+							<br>
+						</fieldset>
+					</div>
+				</div>
+				<div class="col-lg-6">
+					<h2>How to sign in later?</h2>
+					<p>You have the choice between:</p>
+					<ul>
+						<li>Use a password for your account</li>
+						<li>Ask for a new mail with a new link (using the subscribe input again)</li>
+					</ul>
+					<p>In both cases your configuration is stored and associated with your email address.</p>
+				</div>
+			</div>
+			<div class="row">
+				<div class="col-lg-6">
+					<div class="well bs-component">
+						<fieldset>
+							<legend>Notifications</legend>
+							<div class="form-group">
+								<label for="inputEmail" class="col-lg-2 control-label">Email</label>
+								<div class="col-lg-10">
+									<input class="form-control" id="disabledInput" type="text" placeholder="{{ user.email }}" disabled="">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" name="enable_emails" {% if user.send_emails %}checked{% endif %}> Enable notifications by email
+										</label>
+									</div>
+								</div>
+							</div>
+							<div class="form-group">
+								<label for="inputEmail" class="col-lg-2 control-label">API Key</label>
+								<div class="col-lg-10">
+									<input class="form-control" name="pushbullet_api_key" type="text" placeholder="Your key" value="{{ user.pushbullet_api_key }}">
+									<div class="checkbox">
+										<label>
+											<input type="checkbox" name="enable_pushbullets" {% if user.send_pushbullets %}checked{% endif %}> Enable push notifications
+										</label>
+									</div>
+								</div>
+							</div>
+						</fieldset>
+						<div id="source-button" class="btn btn-primary btn-xs" style="display: none;">&lt; &gt;</div>
+					</div>
+					<fieldset>
+						<div class="form-group">
+							<div class="col-lg-10 col-lg-offset-4">
+								<button type="reset" class="btn btn-default">Cancel</button>
+								<button type="submit" class="btn btn-primary">Save</button>
+							</div>
+						</div>
+					</fieldset>
+				</div>
+				<div class="col-lg-6">
+					<h2>How works notifications?</h2>
+					<p>Every minute our server checks for new news. When a new news is detected, we check if there are any followers for the corresponding group and then we send them emails or push notifications.</p>
+					<h2>What is pushbullet?</h2>
+					<p><a target="_blank" href="https://www.pushbullet.com">Pushbullet</a> is a simple application available on every platform that gives you the opportunity to receive notifications by PUSH, give it a try, it's awesome :)</p>
+					<p>Push notifications are instantaneous!</p>
+				</div>
+			</div>
+		</form>
+	</div>
+{% endblock contents %}

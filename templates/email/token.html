@@ -1,0 +1,11 @@
+{% extends "email/base.html" %}
+{% block content %}
+	<h3>NG Notifier token link</h3>
+	<p class="lead">Thank you for your subscription to NG Notifier!</p>
+	<p>
+		To confirm your account, and/or modify your subscriptions, please follow this link:<br>
+		<a href="{{ site_url }}{% url 'token_validation'  id=user.id token=token %}">
+			{{ site_url }}{% url 'token_validation'  id=user.id token=token %}
+		</a>
+	</p>
+{% endblock content %}
