@@ -30,7 +30,7 @@ following command: `cd web; pip install -r requirements.txt` (it may take a whil
 
 ### Configuration
 
-Now you have to set up your own settings in ngnotifier/settings.py file.
+Now you have to set up your own settings in ngnotifier/settings.py file, just rename the example.settings.py file provided.
 
 Things you must/may modify:
 
