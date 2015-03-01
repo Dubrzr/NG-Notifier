@@ -3,7 +3,7 @@
 <html lang="en">
 	<head>
 	    <meta charset="utf-8">
-	    <title>NG Notifer</title>
+	    <title>NG Notifer [BETA]</title>
 		<meta name="description" content="Newsgroup Email/Pushbullet notifier">
 		<meta name="viewport" content="width=device-width, initial-scale=1">
 		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
@@ -95,7 +95,7 @@
 			.leftcol {
 				height:90vh;
 				overflow-y: scroll;
-			}​
+			}â€‹
 		</style>
 	</head>
 
@@ -103,7 +103,7 @@
 	<div class="navbar navbar-default navbar-fixed-top">
 		<div class="container">
 			<div class="navbar-header">
-				<a class="navbar-brand"><b>NG Notifier</b></a>
+				<a class="navbar-brand"><b>NG Notifier [BETA]</b></a>
 				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
 					<span class="icon-bar"></span>
 					<span class="icon-bar"></span>
@@ -220,18 +220,22 @@
 		<footer>
 			<div class="row">
 				<div class="col-lg-12">
+
 					<ul class="list-unstyled">
 						<li class="pull-right"><a href="#top">Back to top</a></li>
 					</ul>
 					<p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
-					<p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
+					<p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
 					<p>Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a> made by <a href="http://www.kevinsztern.fr/" target="_blank">Kevin Sztern</a>.</p>
+
 				</div>
 			</div>
+
 		</footer>
 	</div>
 	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
 	<script src="{% static "assets/javascripts/bootstrap.min.js" %}"></script>
+	{% include "snippets/analytics.html" %}
 	<script>
 		function validateEmail(email) {
 			var re = /^\S+@\S+$/;
@@ -247,8 +251,13 @@
 				newLi = $('<li>');
 				newNode = $('<a>').addClass('news-link-unroll').attr('href', '#').attr('data-id', value['id']).html(value['display-name']);
 				newNode.appendTo(newLi);
+				//console.log(newLi);
+				//newNode = '<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>';
 				li.after(newLi);
+				//ul.insertBefore(newNode, li.nextSibling);
+				//ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
 				list_news_rec(value['children'], newLi);
+				//li = newNode;
 			});
 		}
 
@@ -289,13 +298,14 @@
 			$(".group-link").click(function(event){
 				var group_id = this.getAttribute('data-group');
 				var contents = $("#news-list");
-				contents.html("");
+				//contents.html("");
 				contents.css("overflow","auto");
 				event.preventDefault();
 				var count = 0;
 				$.ajax({
-					url: 'group2/' + group_id
+					url: '/{{ site_url_prefix }}group2/' + group_id + '/'
 				}).done(function(json) {
+					contents.html("");
 					if (jQuery.isEmptyObject(json))
 						contents.html('<h3 style="text-align: center">Nothing in this group! :(</h3>');
 					else {
@@ -307,12 +317,9 @@
 						});
 						if (count > 9)
 							contents.css("overflow", "scroll");
-						// TODO: Improve JS code: do not repeat it two times...
-						//       Problem when closing a conversation
+
 						$(".news-link").click(function(event) {
 							var news_id = this.getAttribute('data-id');
-							var contents = $("#contents");
-							contents.html("");
 							event.preventDefault();
 							var tmp_li = $(this).parent();
 							if (this.hasAttribute('data-unroll'))
@@ -320,20 +327,20 @@
 								$(this).removeAttr('data-unroll');
 								$('.news-link-unroll').parent().remove();
 							}
-							else if (this.innerHTML.indexOf('○') === -1 && !this.hasAttribute('data-unroll')) {
+							else if (this.innerHTML.indexOf('â—‹') === -1 && !this.hasAttribute('data-unroll')) {
 								this.setAttribute('data-unroll', true);
 								$.ajax({
-									url: 'news2/' + news_id
+									url: '/{{ site_url_prefix }}news2/' + news_id + '/'
 								}).done(function (json) {
+									$("#contents").html("");
 									list_news_rec(json['children'], tmp_li);
 									$(".news-link-unroll").click(function(event) {
 										var news_id = this.getAttribute('data-id');
-										var contents = $("#contents");
-										contents.html("");
 										event.preventDefault();
 										$.ajax({
-											url: 'news/' + news_id
+											url: '/{{ site_url_prefix }}news/' + news_id + '/'
 										}).done(function (json) {
+											$("#contents").html("");
 											$('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
 											$('<h5>').appendTo('#contents').html(
 													'<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
@@ -346,8 +353,9 @@
 								});
 							}
 							$.ajax({
-								url: 'news/' + news_id
+								url: '/{{ site_url_prefix }}news/' + news_id + '/'
 							}).done(function (json) {
+								$("#contents").html("");
 								$('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
 								$('<h5>').appendTo('#contents').html(
 										'<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
@@ -369,10 +377,10 @@
 					var action = $(this).attr("value");
 					var group_id = $(this).attr("data-id");
 					if(action == 'follow'){
-						url = '/group/follow/' + group_id;
+						url = '/{{ site_url_prefix }}group/follow/' + group_id + '/';
 					}
 					else{
-						url = '/group/unfollow/' + group_id;
+						url = '/{{ site_url_prefix }}group/unfollow/' + group_id + '/';
 					}
 					var button = $(this);
 					request = $.ajax({
@@ -385,14 +393,13 @@
 							else
 								button.find('i').removeClass('fa-check-square').addClass('fa-square');
 						},
-						error: function () {
-
+						error: function (request, status, error) {
+							top_alert('Failed to subscribe, please contact us!', 'danger');
 						}
 					});
 				});
 			{% endif %}
 		})
 	</script>
-	{% include 'snippets/analytics.html' %}
 	</body>
 </html>

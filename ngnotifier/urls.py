@@ -1,10 +1,11 @@
 from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.views import logout
+from ngnotifier.settings import SITE_URL, SITE_URL_PREFIX
 
 admin.autodiscover()
 
-urlpatterns = patterns(
+base_urlpatterns = patterns(
     '',
     url(r'^$', 'ngnotifier.views.hosts', name='home'),
     url(r'^group/(?P<id>[0-9A-Za-z]+)/$', 'ngnotifier.views.group', name='group'),
@@ -18,6 +19,11 @@ urlpatterns = patterns(
     url(r'^unsubscribe/(?P<id>[0-9]+)-(?P<token>.+)/$', 'ngnotifier.views.unsubscribe', name='unsubscribe'),
     url(r'^(?P<id>[0-9]+)-(?P<token>.+)$', 'ngnotifier.views.token_validation', name='token_validation'),
     url(r'^accounts/login/$', 'ngnotifier.views.login_user',  name='login'),
-    url(r'^accounts/logout/$', logout, {'next_page': '/'}, name='logout'),
+    url(r'^accounts/logout/$', logout, {'next_page': SITE_URL}, name='logout'),
     url(r'^captcha/', include('captcha.urls')),
     )
+
+urlpatterns = patterns(
+    '',
+    url(r'^' + SITE_URL_PREFIX, include(base_urlpatterns))
+)

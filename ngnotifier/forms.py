@@ -34,11 +34,10 @@ class SettingsForm(forms.Form):
     password = CharField(required=False, max_length=100)
     enable_emails = BooleanField(required=False)
     enable_pushbullets = BooleanField(required=False)
-    pushbullet_api_key = CharField(required=False, min_length=32, max_length=64)
+    pushbullet_api_key = CharField(required=False, max_length=64)
 
     def save(self, user):
         cleaned_data = super().clean()
-        print(cleaned_data)
         enable_emails = cleaned_data.get('enable_emails')
         enable_pushbullets = cleaned_data.get('enable_pushbullets')
         p_api_key = cleaned_data.get('pushbullet_api_key')
@@ -51,7 +50,6 @@ class SettingsForm(forms.Form):
         user.send_pushbullets = enable_pushbullets
         user.pushbullet_api_key = p_api_key
         if password != '' and password != None:
-            print(password)
             user.set_password(password)
         user.save()
 

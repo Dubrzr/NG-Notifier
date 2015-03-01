@@ -8,3 +8,4 @@ chardet==2.3.0
 django-simple-captcha==0.4.4
 django-celery>=3.1.16
 gunicorn>=19.2.1
+Flask-SQLAlchemy==2.0

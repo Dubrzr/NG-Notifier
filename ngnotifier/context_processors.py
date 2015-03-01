@@ -10,7 +10,7 @@ from ngnotifier.models import User, NGHost
 def site_infos(request):
 
     current_site = get_current_site(request)
-    protocol = 'https' if request.is_secure() else 'http'
+    protocol = 'https'# if request.is_secure() else 'http'
     domain = current_site.domain
 
     count = 0
@@ -18,7 +18,8 @@ def site_infos(request):
         count += host.nb_notifs_sent
 
     return {
-        'site_url' : protocol + '://' + domain,
+        'site_url' : settings.SITE_URL,
+	'site_url_prefix': settings.SITE_URL_PREFIX,
         'site_name': settings.SITE_NAME,
         'protocol': protocol,
         'domain': domain,

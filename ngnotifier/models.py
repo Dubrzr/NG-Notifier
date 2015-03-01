@@ -151,18 +151,6 @@ class NGHost(models.Model):
                     print_fail(e)
             if check_news and ng_group:
                 new_news_list += ng_group.update_news(tmp_co, verbose=verbose)
-        if verbose and len(new_news_list) > 0:
-            print('    Updating kinships for {} host.'.format(self.host))
-        for news in new_news_list:
-            if news.father != '':
-                try:
-                    father = NGNews.objects.get(message_id=news.father)
-                    father.has_children = True
-                    father.save()
-                except Exception as e:
-                    print(
-                        bcolors.FAIL + '      Failed! ' + str(e) + bcolors.ENDC
-                    )
 
 
 class NGGroup(models.Model):
@@ -229,6 +217,17 @@ class NGGroup(models.Model):
                         print_fail(e)
             except Exception as e:
                 print_fail(e)
+        if len(new_news_list) > 0:
+	        for news in new_news_list:
+	            if news.father != '':
+	                try:
+	                    father = NGNews.objects.get(message_id=news.father)
+	                    father.has_children = True
+	                    father.save()
+	                except Exception as e:
+	                    print(
+	                        bcolors.FAIL + '      Failed! ' + str(e) + bcolors.ENDC
+	                    )
         self.nb_news += len(new_news_list)
         self.save()
         return new_news_list

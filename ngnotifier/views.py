@@ -1,4 +1,5 @@
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.cache import never_cache
 from django.contrib.auth import login as auth_login, authenticate
 from django.contrib.auth.views import login
 from django.core.urlresolvers import reverse
@@ -14,6 +15,7 @@ from django.contrib.auth import logout
 from ngnotifier.utils import serializable_object
 
 
+@never_cache
 def hosts(request):
     if request.user.is_authenticated():
         request.session.set_expiry(2592000) # Session will expires in 30 days
@@ -31,7 +33,7 @@ def hosts(request):
                 context,
                 context_instance=RequestContext(request)
             )
-            if send_email(html_content, 'NL Notifier',
+            if send_email(html_content, 'NG Notifier',
                           settings.FROM_ADDR, user.email, 'html'):
                 logout(request)
                 return render_to_response(
@@ -51,7 +53,7 @@ def hosts(request):
         context_instance=RequestContext(request)
     )
 
-
+@never_cache
 def group2(request, id):
     group = get_object_or_404(NGGroup, id=id)
     news = NGNews.objects\
@@ -61,6 +63,7 @@ def group2(request, id):
     return JsonResponse(data, safe=False)
 
 
+@never_cache
 def group(request, id):
     news = get_object_or_404(NGGroup, id=id).get_news()
     data = {key.id: key.date.strftime('<b>%Y-%m-%d %H:%M:%S</b> | ')
@@ -68,12 +71,14 @@ def group(request, id):
     return JsonResponse(data, safe=False)
 
 
+@never_cache
 def news2(request, id):
     news = get_object_or_404(NGNews, id=id)
     data = serializable_object(news, True)
     return JsonResponse(data, safe=False)
 
 
+@never_cache
 def news(request, id):
     news = get_object_or_404(NGNews, id=id)
     data = {
@@ -171,12 +176,9 @@ def login_user(request):
         username = request.POST['username']
         password = request.POST['password']
 
-        user = User.objects.get(email=username)
-        print(user.check_password(password))
-
         user = authenticate(username=username, password=password)
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect('/settings')
-    raise Http404()
+                return HttpResponseRedirect(reverse('ngnotifier.views.edit_settings'))
+    return HttpResponseRedirect(reverse('ngnotifier.views.hosts'))

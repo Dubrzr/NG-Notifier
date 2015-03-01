@@ -35,7 +35,6 @@ def send_pushbullet(api_key, devices, subject, msg):
     pb = PushBullet(api_key)
     if not pb:
         return False
-    print(pb.devices)
     for device in pb.devices:
         device.push_note(subject, msg)
         return True
