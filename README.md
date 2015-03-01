@@ -3,7 +3,7 @@ A News Reader as a webapp', bundled with celery for frequent checks of news, and
 
 ## How to?
 
-### Initializatiob
+### Initialization
 
 We will use the virtualenv way, assuming python is aliased to python3.
 
@@ -26,7 +26,7 @@ path/ng-notifier/
 ```
 
 You will now have to install requirements for this project. Proceed with the
-following command: `cd web; pip install -r requirements.txt`.
+following command: `cd web; pip install -r requirements.txt` (it may take a while).
 
 ### Configuration
 
@@ -61,9 +61,9 @@ You now have a ready to run application.
 
 * To run the server just type `python manage.py runserver`.
 * To execute tasks automatically, type `python manage.py celery -A ngnotifier
-  worker --beat --concurency=1`
+  worker --beat --concurrency=1`
 
 ## About
 
 This project is maintained, and any pull request will be reviewed! Even for
-grammar mistakes, and PEP-8 mistake.
+grammar mistakes, and PEP-8.
