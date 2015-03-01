@@ -31,7 +31,6 @@ def send_email(msg, subject, from_addr, to_addrs, type):
 
 
 def send_pushbullet(api_key, devices, subject, msg):
-    print(api_key)
     pb = PushBullet(api_key)
     if not pb:
         return False
