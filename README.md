@@ -1,6 +1,8 @@
 # NG-Notifier
 A News Reader as a webapp', bundled with celery for frequent checks of news, and a notifier system using mails &amp; pushbullet.
 
+The current version is running [here](https://42portal.com/ng-notifier/).
+
 ## How to?
 
 ### Initialization
@@ -30,7 +32,7 @@ following command: `cd web; pip install -r requirements.txt` (it may take a whil
 
 ### Configuration
 
-Now you have to set up your own settings in ngnotifier/settings.py file.
+Now you have to set up your own settings in ngnotifier/settings.py file, just rename the example.settings.py file provided.
 
 Things you must/may modify:
 
