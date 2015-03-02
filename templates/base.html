@@ -178,6 +178,7 @@
 						<div class="modal-body">
 							{% csrf_token %}
 							{{ form }}
+							<h3>Note: After submission, if you are redirected to the home page, you failed the Captcha!</h3>
 						</div>
 						<div class="modal-footer">
 							<button type="submit" class="btn btn-success">Submit</button>

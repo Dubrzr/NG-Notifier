@@ -70,6 +70,6 @@ def send_notif(new_news, ng_group):
                     m_subject,
                     m_from_addr,
                     m_to_addrs,
-                    'text'
+                    'plain'
                 )
     return m, p
