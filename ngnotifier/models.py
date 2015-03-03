@@ -2,6 +2,7 @@ from datetime import datetime
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
+from itertools import chain
 
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
     print_done, print_exists,\
@@ -111,12 +112,15 @@ class NGHost(models.Model):
 
     def get_co(self):
         return get_co(self.host, self.port, self.ssl,
-                            self.user, self.password, self.timeout)
+                      self.user, self.password, self.timeout)
 
-    def get_groups(self):
-        return NGGroup.objects.filter(
+    def get_ordered_groups(self):
+        all_groups =  NGGroup.objects.filter(
             host=self
-        )
+        ).order_by('name')
+        result_list = list(chain(all_groups.filter(nb_news__gt=0),
+                                 all_groups.filter(nb_news=0)))
+        return result_list
 
     def update_groups(self, groups=None, check_news=True, verbose=True):
         tmp_co = self.get_co()
@@ -218,16 +222,17 @@ class NGGroup(models.Model):
             except Exception as e:
                 print_fail(e)
         if len(new_news_list) > 0:
-	        for news in new_news_list:
-	            if news.father != '':
-	                try:
-	                    father = NGNews.objects.get(message_id=news.father)
-	                    father.has_children = True
-	                    father.save()
-	                except Exception as e:
-	                    print(
-	                        bcolors.FAIL + '      Failed! ' + str(e) + bcolors.ENDC
-	                    )
+            for news in new_news_list:
+                if news.father != '':
+                    try:
+                        father = NGNews.objects.get(message_id=news.father)
+                        father.has_children = True
+                        father.save()
+                    except Exception as e:
+                        print(
+                            bcolors.FAIL + '      Failed! ' + str(
+                                e) + bcolors.ENDC
+                        )
         self.nb_news += len(new_news_list)
         self.save()
         return new_news_list
