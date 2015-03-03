@@ -2,7 +2,7 @@ from datetime import datetime
 import re
 import hashlib
 import nntplib
-from email.header import decode_header
+from email.header import decode_header, make_header
 
 
 def get_co(host, port, ssl, user, password, timeout):
@@ -19,31 +19,31 @@ def get_co(host, port, ssl, user, password, timeout):
 
 
 def parse_nntp_date(str):
-    # Parsing the date of the post
-    try:
-        return datetime.strptime(str, '%a, %d %b %Y %H:%M:%S')
-    except:
+    # Parse the date of a post
+
+    # First try all registered possible formats
+    possible_formats = [
+        '%a, %d %b %Y %H:%M:%S',
+        '%a, %d %b %Y %H:%M:%S %z (%Z)',
+        '%a, %d %b %Y %H:%M:%S %Z',
+        '%a, %d %b %Y %H:%M:%S %z',
+        '%d %b %Y %H:%M:%S %z',
+        '%a, %d %b %Y %H:%M %z'
+    ]
+    for f in possible_formats:
         try:
-            return datetime.strptime(str, '%a, %d %b %Y %H:%M:%S %z (%Z)')
+            return datetime.strptime(str, f)
         except:
-            try:
-                return datetime.strptime(str, '%a, %d %b %Y %H:%M:%S %Z')
-            except:
-                try:
-                    return datetime.strptime(str, '%a, %d %b %Y %H:%M:%S %z')
-                except:
-                    try:
-                        return datetime.strptime(str, '%d %b %Y %H:%M:%S %z')
-                    except:
-                        try:
-                            return datetime.strptime(str, '%a, %d %b %Y %H:%M %z')
-                        except:
-                            try:
-                                str_tmp = re.sub('(\+[0-2][0-9]:[0-5][0-9])', '', str)
-                                return datetime.strptime(str_tmp, '%a, %d %b %Y %H:%M:%S %z (%Z)')
-                            except:
-                                print_fail(None, "Failed parsing date! (" + str + ')')
-                                return datetime.now()
+            pass
+
+    # If it failed, try another one by deleting incorrect TZ time
+    try:
+        str_tmp = re.sub('(\+[0-2][0-9]:[0-5][0-9])', '', str)
+        return datetime.strptime(str_tmp, '%a, %d %b %Y %H:%M:%S %z (%Z)')
+    except:
+        # If it didn't worked either, just return current date!
+        print_fail(None, 'Failed parsing date! (' + str + ')')
+        return datetime.now()
 
 
 def get_father(references):
@@ -86,8 +86,8 @@ def get_decoded(str):
 
 
 def properly_decode_header(subject):
-    contents, _ = decode_header(subject)[0]
-    return get_decoded(contents)
+    contents = make_header(decode_header(subject))
+    return str(contents)
 
 
 def hash_over(over):
@@ -118,29 +118,31 @@ class bcolors:
 
 def print_msg(type, msg, end=''):
     if type == 'host':
-        print(bcolors.HEADER + 'Host: ' + bcolors.ENDC, end=end, flush=False)
+        print(bcolors.HEADER, 'Host: ', bcolors.ENDC, end=end, flush=False)
     elif type == 'group':
-        print(bcolors.HEADER + '  Group: ' + bcolors.ENDC, end=end, flush=False)
+        print(bcolors.HEADER, '  Group: ', bcolors.ENDC, end=end, flush=False)
     elif type == 'news':
-        print(bcolors.HEADER + '    News: ' + bcolors.ENDC, end=end, flush=False)
-    print(msg + '... ', end=end, flush=False)
+        print(bcolors.HEADER, '    News: ', bcolors.ENDC, end=end, flush=False)
+    print(msg, '... ', end=end, flush=False)
 
 
 def print_exists():
     print(
-        bcolors.OKGREEN + 'Already exists!' + bcolors.ENDC
+        bcolors.OKGREEN, 'Already exists!', bcolors.ENDC
     )
 
 
 def print_done():
     print(
-        bcolors.OKGREEN + 'Added!' + bcolors.ENDC
+        bcolors.OKGREEN, 'Added!', bcolors.ENDC
     )
 
 
 def print_fail(e, msg=None):
     print(
-        bcolors.FAIL + 'Failed! ' + ((('(' + str(e) + ')') if e else '') if not msg else msg) + bcolors.ENDC
+        bcolors.FAIL, 'Failed! ',
+        ((('(' + str(e) + ')') if e else '') if not msg else msg),
+        bcolors.ENDC
     )
 
 

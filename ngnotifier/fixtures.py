@@ -29,7 +29,8 @@ class NGFixtures():
                     print_fail(e)
                     current_host = None
             if current_host:
-                current_host.update_groups(hosts[host]['groups'])
+                current_host.update_groups(hosts[host]['groups'],
+                                           check_kinship=True)
 
 
     @staticmethod
