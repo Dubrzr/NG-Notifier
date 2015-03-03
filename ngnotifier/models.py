@@ -73,6 +73,18 @@ class User(AbstractBaseUser):
         ng_group.save()
 
 
+def kinship_updater(new_news_list):
+    if len(new_news_list) > 0:
+        for news in new_news_list:
+            if news.father != '':
+                try:
+                    father = NGNews.objects.get(message_id=news.father)
+                    father.has_children = True
+                    father.save()
+                except Exception as e:
+                    print(bcolors.FAIL, '      Failed! ', str(e), bcolors.ENDC)
+
+
 class NGNews(models.Model):
     groups = models.ManyToManyField('NGGroup')
     hash = models.TextField(unique=True)
@@ -122,7 +134,8 @@ class NGHost(models.Model):
                                  all_groups.filter(nb_news=0)))
         return result_list
 
-    def update_groups(self, groups=None, check_news=True, verbose=True):
+    def update_groups(self, groups=None, check_news=True, check_kinship=False,
+                      verbose=True):
         tmp_co = self.get_co()
         if groups is None or len(groups) == 0:
             _, list = tmp_co.list()
@@ -155,6 +168,9 @@ class NGHost(models.Model):
                     print_fail(e)
             if check_news and ng_group:
                 new_news_list += ng_group.update_news(tmp_co, verbose=verbose)
+        if check_kinship:
+            kinship_updater(new_news_list)
+
 
 
 class NGGroup(models.Model):
@@ -221,18 +237,6 @@ class NGGroup(models.Model):
                         print_fail(e)
             except Exception as e:
                 print_fail(e)
-        if len(new_news_list) > 0:
-            for news in new_news_list:
-                if news.father != '':
-                    try:
-                        father = NGNews.objects.get(message_id=news.father)
-                        father.has_children = True
-                        father.save()
-                    except Exception as e:
-                        print(
-                            bcolors.FAIL + '      Failed! ' + str(
-                                e) + bcolors.ENDC
-                        )
         self.nb_news += len(new_news_list)
         self.save()
         return new_news_list

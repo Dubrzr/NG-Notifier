@@ -10,6 +10,7 @@ from ngnotifier.models import NGHost, NGGroup
 # set the default Django settings module for the 'celery' program.
 from ngnotifier.notifs import send_notif
 from ngnotifier.settings import SECONDS_DELTA
+from ngnotifier.models import kinship_updater
 
 app = Celery('ngnotifier')
 
@@ -46,6 +47,7 @@ app.conf.update(
 def update_news():
     m = 0
     p = 0
+    new_news_list_all = []
     for ng_host in NGHost.objects.all():
         print('Checking {} host:'.format(ng_host.host), flush=False)
         ng_groups = NGGroup.objects.filter(host=ng_host)
@@ -57,11 +59,15 @@ def update_news():
             m_tmp_grp, p_tmp_grp = send_notif(new_news_list, ng_group)
             m_tmp += m_tmp_grp
             p_tmp += p_tmp_grp
+            new_news_list_all += new_news_list
         if m_tmp + p_tmp > 0:
             ng_host.nb_notifs_sent += m_tmp + p_tmp
             ng_host.save()
         m += m_tmp
         p += p_tmp
+
+    kinship_updater(new_news_list_all)
+
     print('\t\tSent {} emails!'.format(m))
     print('\t\tSent {} pushs!'.format(p))
 
