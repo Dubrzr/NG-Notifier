@@ -206,6 +206,7 @@ class NGGroup(models.Model):
                     if not self in n.groups.all():
                         n.groups.add(self)
                         n.save()
+                        self.nb_news += 1
                 except ObjectDoesNotExist:
                     date = parse_nntp_date(over['date'])
                     _, info = tmp_co.body(over['message-id'])
