@@ -46,7 +46,8 @@ def send_notif(new_news, ng_group):
     if followers.count() > 0:
         for ng_news in new_news:
 
-            m_msg = ng_news.contents + ' ' + BOT_MSG
+            m_msg = ng_news.contents + ' ' + BOT_MSG\
+                    + '\nMessage sent in:' + ' '.join(new_news.groups)
             m_subject = ng_news.subject + ' ' + BOT_TAG
             m_from_addr = FROM_ADDR
 
