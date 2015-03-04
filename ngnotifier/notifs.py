@@ -47,7 +47,8 @@ def send_notif(new_news, ng_group):
         for ng_news in new_news:
 
             m_msg = ng_news.contents + ' ' + BOT_MSG\
-                    + '\nMessage sent in:' + ' '.join([n.name for n in ng_news.groups.all()])
+                    + '\nMessage sent in: ' + ' / '.join([n.name for n in ng_news.groups.all()])\
+                    + '\nMessage author: ' + ng_news.email_from
             m_subject = ng_news.subject + ' ' + BOT_TAG
             m_from_addr = FROM_ADDR
 
