@@ -8,7 +8,7 @@ def send_email(msg, subject, from_addr, to_addrs, type):
     msg = MIMEText(msg, type)
     msg['Subject'] = subject
     msg['From'] = from_addr
-    msg['To'] = to_addrs
+    msg['BCC'] = to_addrs
     try:
         if mail['ssl']:
             server = smtplib.SMTP_SSL(mail['host'],mail['port'], timeout=10)
