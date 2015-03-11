@@ -5,8 +5,15 @@ from django.contrib.auth.views import login
 from django.core.urlresolvers import reverse
 from django.shortcuts import render_to_response, get_object_or_404
 from django.template import RequestContext
-from django.http import Http404, JsonResponse, HttpResponseRedirect
+from django.http import Http404, JsonResponse, HttpResponseRedirect,\
+    HttpResponse
 from django.template.loader import render_to_string
+from rest_framework.decorators import api_view
+from rest_framework.renderers import JSONRenderer
+from rest_framework.response import Response
+from rest_framework.reverse import reverse as rf_reverse
+
+
 from ngnotifier import settings
 from ngnotifier.forms import CaptchaForm, SettingsForm
 from ngnotifier.models import NGHost, NGGroup, NGNews, User
@@ -182,3 +189,22 @@ def login_user(request):
                 login(request, user)
                 return HttpResponseRedirect(reverse('ngnotifier.views.edit_settings'))
     return HttpResponseRedirect(reverse('ngnotifier.views.hosts'))
+
+
+# API
+class JSONResponse(HttpResponse):
+    """
+    An HttpResponse that renders its content into JSON.
+    """
+    def __init__(self, data, **kwargs):
+        content = JSONRenderer().render(data)
+        kwargs['content_type'] = 'application/json'
+        super(JSONResponse, self).__init__(content, **kwargs)
+
+
+@api_view(('GET',))
+def api_root(request, format=None):
+    return Response({
+        'hosts': rf_reverse('host_list', request=request, format=format),
+        # 'groups': rf_reverse('group-list', request=request, format=format)
+    })

@@ -2,8 +2,18 @@ from django.conf.urls import patterns, include, url
 from django.contrib import admin
 from django.contrib.auth.views import logout
 from ngnotifier.settings import SITE_URL, SITE_URL_PREFIX
+from ngnotifier import views, api_views
 
 admin.autodiscover()
+
+api_urlpatterns = patterns(
+    '',
+    # url(r'^$', views.api_root),
+    url(r'^$',  api_views.host_list, name='host_list'),
+    url(r'^(?P<host>.+)/(?P<group>.+)/(?P<news>.+)/$',  api_views.group_list, name='news_detail'),
+    url(r'^(?P<host>.+)/(?P<group>.+)/$',  api_views.news_list, name='news_list'),
+    url(r'^(?P<host>.+)/$',  api_views.group_list, name='group_list'),
+)
 
 base_urlpatterns = patterns(
     '',
@@ -21,6 +31,7 @@ base_urlpatterns = patterns(
     url(r'^accounts/login/$', 'ngnotifier.views.login_user',  name='login'),
     url(r'^accounts/logout/$', logout, {'next_page': SITE_URL}, name='logout'),
     url(r'^captcha/', include('captcha.urls')),
+    url(r'^api/', include(api_urlpatterns))
     )
 
 urlpatterns = patterns(
