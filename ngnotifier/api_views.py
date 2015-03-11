@@ -8,7 +8,7 @@ from rest_framework.parsers import JSONParser
 from ngnotifier.models import NGHost, NGGroup, NGNews
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer
-from views import JSONResponse
+from ngnotifier.views import JSONResponse
 
 @csrf_exempt
 def host_detail(request, host_url):
