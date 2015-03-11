@@ -1,4 +1,4 @@
-* JS research
+* research
 * 404/500
 * Cache
 * try button on notif page for pushbullet

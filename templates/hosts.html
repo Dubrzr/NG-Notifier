@@ -35,6 +35,10 @@
 			<div class="col-lg-9">
 				<div id="news-list" style="height: 200px;" class=" well bs-component">
 					<h3 style="text-align: center">Click on a group to review its news!</h3>
+					{% if user.is_authenticated %}
+					{% else %}
+					<h3 style="text-align: center">You can also receive notifs by subscribing!</h3>
+					{% endif %}
 				</div>
 				<div style="margin-top: 1em" id="contents" class=" well bs-component">
 				</div>
