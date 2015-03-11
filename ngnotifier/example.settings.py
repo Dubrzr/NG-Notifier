@@ -56,6 +56,7 @@ INSTALLED_APPS = (
     'ngnotifier',
     'captcha',
     'djcelery',
+    'rest_framework',
 )
 
 MIDDLEWARE_CLASSES = (

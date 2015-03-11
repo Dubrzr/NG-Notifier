@@ -115,11 +115,11 @@ class NGHost(models.Model):
     timeout = models.IntegerField(max_length=120, default=30)
     nb_notifs_sent = models.IntegerField(default=0)
 
-    known_news = models.ManyToManyField(NGNews)
+    #known_news = models.ManyToManyField(NGNews)
     nb_groups = models.IntegerField(default=0)
 
     def add_news(self, news):
-        self.known_news.add(news)
+        #self.known_news.add(news)
         self.save()
 
     def get_co(self):
