@@ -67,38 +67,40 @@ def news_list(request, host, group):
     try:
         host = NGHost.objects.get(host=host)
     except NGHost.DoesNotExist:
-        print('here2')
         return HttpResponse(status=400)
 
     start_date = request.GET.get('start_date', '')
-    try:
-        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S%z')
-    except:
-        print('here58' + start_date)
-        start_date = datetime(2000, 11, 21, 16, 30)
 
-    start_date = start_date.replace(tzinfo=None)
+    if start_date != '':
+        try:
+            s_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S%z')
+            s_date = s_date.replace(tzinfo=None)
+        except ValueError:
+            return HttpResponse(status=400)
+
+    else:
+        s_date = datetime(2000, 1, 1, 00, 00)
 
     limit = int(request.GET.get('limit', '1000'))
     if limit <1:
         return HttpResponse(status=400)
 
-    if start_date > datetime.now():
+    if s_date > datetime.now():
         return HttpResponse(status=400)
 
     try:
         group = NGGroup.objects.get(host=host, name=group)
     except NGGroup.DoesNotExist:
-        print('here')
         return HttpResponse(status=400)
 
-    print('here3')
     if request.method == 'GET':
-        news_list = NGNews.objects.filter(groups__in=[group], date__gte=start_date).order_by('-date')[:limit]
-        serializer = NGNewsSerializer(news_list, many=True)
+        n_list = NGNews.objects\
+                     .filter(groups__in=[group], date__gte=s_date, father='')\
+                     .order_by('-date')[:limit]
+
+        serializer = NGNewsSerializer(n_list, many=True)
         return JSONResponse(serializer.data)
 
-    print('here4')
     return HttpResponse(status=400)
 
 @csrf_exempt
@@ -109,32 +111,34 @@ def news_list_refresh(request, host, group):
     try:
         host = NGHost.objects.get(host=host)
     except NGHost.DoesNotExist:
-        print('here2')
         return HttpResponse(status=400)
 
-    start_date = request.GET.get('start_date', '')
-    try:
-        start_date = datetime.strptime(start_date, '%Y-%m-%dT%H:%M:%S%z')
-    except:
-        start_date = datetime(2006, 11, 21, 16, 30)
+    end_date = request.GET.get('end_date', '')
+
+    if end_date != '':
+        try:
+            e_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M:%S%z')
+            e_date = e_date.replace(tzinfo=None)
+        except ValueError:
+            return HttpResponse(status=400)
+    else:
+        e_date = datetime(2000, 1, 1, 00, 00)
+
     limit = int(request.GET.get('limit', '1000'))
     if limit <1:
-        return HttpResponse(status=400)
-
-    if start_date > datetime.now():
         return HttpResponse(status=400)
 
     try:
         group = NGGroup.objects.get(host=host, name=group)
     except NGGroup.DoesNotExist:
-        print('here')
         return HttpResponse(status=400)
 
-    print('here3')
     if request.method == 'GET':
-        news_list = NGNews.objects.filter(groups__in=[group], date__gte=start_date).order_by('-date')[:limit]
-        serializer = NGNewsSerializer(news_list, many=True)
+        n_list = NGNews.objects\
+                     .filter(groups__in=[group], date__lt=e_date, father='')\
+                     .order_by('-date')[:limit]
+
+        serializer = NGNewsSerializer(n_list, many=True)
         return JSONResponse(serializer.data)
 
-    print('here4')
     return HttpResponse(status=400)
