@@ -1,17 +1,18 @@
 from datetime import datetime
-from django.views.decorators.csrf import csrf_exempt
-from rest_framework import serializers
+from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
-from rest_framework.renderers import JSONRenderer
-from rest_framework.parsers import JSONParser
+from django.views.decorators.http import require_http_methods
 
 from ngnotifier.models import NGHost, NGGroup, NGNews
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer
 from ngnotifier.views import JSONResponse
 
+
+@never_cache
 @csrf_exempt
+@require_http_methods("GET")
 def host_detail(request, host_url):
     """
     Retrieve a NGHost.
@@ -21,27 +22,25 @@ def host_detail(request, host_url):
     except NGHost.DoesNotExist:
         return HttpResponse(status=400)
 
-    if request.method == 'GET':
-        serializer = NGHostSerializer(host)
-        return JSONResponse(serializer.data)
-
-    return HttpResponse(status=400)
+    serializer = NGHostSerializer(host)
+    return JSONResponse(serializer.data)
 
 
+@never_cache
 @csrf_exempt
+@require_http_methods("GET")
 def host_list(request):
     """
     Retrieve all NGHost.
     """
-    if request.method == 'GET':
-        hosts = NGHost.objects.all()
-        serializer = NGHostSerializer(hosts, many=True)
-        return JSONResponse(serializer.data)
-
-    return HttpResponse(status=400)
+    hosts = NGHost.objects.all()
+    serializer = NGHostSerializer(hosts, many=True)
+    return JSONResponse(serializer.data)
 
 
+@never_cache
 @csrf_exempt
+@require_http_methods("GET")
 def group_list(request, host):
     """
     Retrieve all NGGroup.
@@ -51,15 +50,14 @@ def group_list(request, host):
     except NGHost.DoesNotExist:
         return HttpResponse(status=400)
 
-    if request.method == 'GET':
-        hosts = NGGroup.objects.filter(host=host)
-        serializer = NGGroupSerializer(hosts, many=True)
-        return JSONResponse(serializer.data)
-
-    return HttpResponse(status=400)
+    hosts = NGGroup.objects.filter(host=host)
+    serializer = NGGroupSerializer(hosts, many=True)
+    return JSONResponse(serializer.data)
 
 
+@never_cache
 @csrf_exempt
+@require_http_methods("GET")
 def news_list(request, host, group):
     """
     Retrieve all NGNews.
@@ -93,17 +91,17 @@ def news_list(request, host, group):
     except NGGroup.DoesNotExist:
         return HttpResponse(status=400)
 
-    if request.method == 'GET':
-        n_list = NGNews.objects\
-                     .filter(groups__in=[group], date__gte=s_date, father='')\
-                     .order_by('-date')[:limit]
+    n_list = NGNews.objects\
+                 .filter(groups__in=[group], date__gte=s_date, father='')\
+                 .order_by('-date')[:limit]
 
-        serializer = NGNewsSerializer(n_list, many=True)
-        return JSONResponse(serializer.data)
+    serializer = NGNewsSerializer(n_list, many=True)
+    return JSONResponse(serializer.data)
 
-    return HttpResponse(status=400)
 
+@never_cache
 @csrf_exempt
+@require_http_methods("GET")
 def news_list_refresh(request, host, group):
     """
     Retrieve all NGNews.
@@ -133,12 +131,33 @@ def news_list_refresh(request, host, group):
     except NGGroup.DoesNotExist:
         return HttpResponse(status=400)
 
-    if request.method == 'GET':
-        n_list = NGNews.objects\
-                     .filter(groups__in=[group], date__lt=e_date, father='')\
-                     .order_by('-date')[:limit]
+    n_list = NGNews.objects\
+                 .filter(groups__in=[group], date__lt=e_date, father='')\
+                 .order_by('-date')[:limit]
 
-        serializer = NGNewsSerializer(n_list, many=True)
-        return JSONResponse(serializer.data)
+    serializer = NGNewsSerializer(n_list, many=True)
+    return JSONResponse(serializer.data)
 
-    return HttpResponse(status=400)
+
+@never_cache
+@csrf_exempt
+@require_http_methods("GET")
+def news_detail(request, host, group, news_id):
+    """
+    Retrieve a news details with all answers
+    """
+    try:
+        host = NGHost.objects.get(host=host)
+    except NGHost.DoesNotExist:
+        return HttpResponse(status=400)
+
+    try:
+        group = NGGroup.objects.get(host=host, name=group)
+    except NGGroup.DoesNotExist:
+        return HttpResponse(status=400)
+
+    try:
+        news = NGNews.objects.get(groups__in=group, id=news_id)
+    except NGGroup.DoesNotExist:
+        return HttpResponse(status=400)
+

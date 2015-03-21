@@ -1,3 +1,4 @@
+import re
 from rest_framework import serializers
 
 from ngnotifier.models import NGHost, NGGroup, NGNews
@@ -24,10 +25,6 @@ class NGGroupSerializer(serializers.HyperlinkedModelSerializer):
         fields = ('id', 'group_name', 'topic_nb')
 
 
-class RecursiveField(serializers.Serializer):
-    def to_native(self, value):
-        return self.father.to_native(value)
-
 class NGNewsSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(source='pk')
     author = serializers.ReadOnlyField(source='email_from')
@@ -39,6 +36,27 @@ class NGNewsSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = NGNews
-        fields = ('id', 'author', 'email_from', 'subject', 'content',
+        fields = ('id', 'author', 'subject', 'content',
                   'creation_date', 'groups')
                   #'children')
+
+
+class RecursiveField(serializers.Serializer):
+    def to_native(self, value):
+        return self.father.to_native(value)
+
+
+class NGNewsDetailSerializer(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(source='pk')
+    author = serializers.ReadOnlyField(source='email_from')
+    subject = serializers.ReadOnlyField()
+    content = serializers.ReadOnlyField(source='contents')
+    creation_date = serializers.DateTimeField(source='date')
+    groups = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
+    #children = RecursiveField(many=True)
+
+    class Meta:
+        model = NGNews
+        fields = ('id', 'author', 'subject', 'content',
+                  'creation_date', 'groups')
+        #'children')
