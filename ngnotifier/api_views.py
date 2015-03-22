@@ -92,7 +92,7 @@ def news_list(request, host, group):
         return HttpResponse(status=400)
 
     n_list = NGNews.objects\
-                 .filter(groups__in=[group], date__gte=s_date, father='')\
+                 .filter(groups__in=[group], date__lte=s_date, father='')\
                  .order_by('-date')[:limit]
 
     serializer = NGNewsSerializer(n_list, many=True)
@@ -132,7 +132,7 @@ def news_list_refresh(request, host, group):
         return HttpResponse(status=400)
 
     n_list = NGNews.objects\
-                 .filter(groups__in=[group], date__lt=e_date, father='')\
+                 .filter(groups__in=[group], date__gt=e_date, father='')\
                  .order_by('-date')[:limit]
 
     serializer = NGNewsSerializer(n_list, many=True)
