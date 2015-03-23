@@ -6,7 +6,7 @@ from django.views.decorators.http import require_http_methods
 
 from ngnotifier.models import NGHost, NGGroup, NGNews
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
-    NGNewsSerializer
+    NGNewsSerializer, NGNewsDetailSerializer
 from ngnotifier.views import JSONResponse
 
 
@@ -50,7 +50,8 @@ def group_list(request, host):
     except NGHost.DoesNotExist:
         return HttpResponse(status=400)
 
-    hosts = NGGroup.objects.filter(host=host)
+    hosts = NGGroup.objects.filter(host=host)\
+                           .order_by('name')
     serializer = NGGroupSerializer(hosts, many=True)
     return JSONResponse(serializer.data)
 
@@ -75,15 +76,11 @@ def news_list(request, host, group):
             s_date = s_date.replace(tzinfo=None)
         except ValueError:
             return HttpResponse(status=400)
-
     else:
-        s_date = datetime(2000, 1, 1, 00, 00)
+        s_date = datetime.now()
 
     limit = int(request.GET.get('limit', '1000'))
     if limit <1:
-        return HttpResponse(status=400)
-
-    if s_date > datetime.now():
         return HttpResponse(status=400)
 
     try:
@@ -92,7 +89,7 @@ def news_list(request, host, group):
         return HttpResponse(status=400)
 
     n_list = NGNews.objects\
-                 .filter(groups__in=[group], date__lte=s_date, father='')\
+                 .filter(groups__in=[group], date__lt=s_date, father='')\
                  .order_by('-date')[:limit]
 
     serializer = NGNewsSerializer(n_list, many=True)
@@ -120,7 +117,7 @@ def news_list_refresh(request, host, group):
         except ValueError:
             return HttpResponse(status=400)
     else:
-        e_date = datetime(2000, 1, 1, 00, 00)
+        e_date = datetime(1970, 1, 1, 00, 00)
 
     limit = int(request.GET.get('limit', '1000'))
     if limit <1:
@@ -146,6 +143,7 @@ def news_detail(request, host, group, news_id):
     """
     Retrieve a news details with all answers
     """
+    print("lol")
     try:
         host = NGHost.objects.get(host=host)
     except NGHost.DoesNotExist:
@@ -157,7 +155,9 @@ def news_detail(request, host, group, news_id):
         return HttpResponse(status=400)
 
     try:
-        news = NGNews.objects.get(groups__in=group, id=news_id)
+        news = NGNews.objects.get(groups__in=[group], id=news_id)
     except NGGroup.DoesNotExist:
         return HttpResponse(status=400)
 
+    serializer = NGNewsDetailSerializer(news)
+    return JSONResponse(serializer.data)

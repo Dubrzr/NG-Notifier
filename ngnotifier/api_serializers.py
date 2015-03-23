@@ -30,20 +30,19 @@ class NGNewsSerializer(serializers.HyperlinkedModelSerializer):
     author = serializers.ReadOnlyField(source='email_from')
     subject = serializers.ReadOnlyField()
     content = serializers.ReadOnlyField(source='contents')
-    creation_date = serializers.DateTimeField(source='date')
+    creation_date = serializers.DateTimeField(source='date', format='%Y-%m-%dT%H:%M:%SZ%z')
     groups = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    #children = RecursiveField(many=True)
 
     class Meta:
         model = NGNews
         fields = ('id', 'author', 'subject', 'content',
                   'creation_date', 'groups')
-                  #'children')
 
 
 class RecursiveField(serializers.Serializer):
-    def to_native(self, value):
-        return self.father.to_native(value)
+    def to_representation(self, instance):
+        serializer = self.parent.parent.__class__(instance, context=self.context)
+        return serializer.data
 
 
 class NGNewsDetailSerializer(serializers.HyperlinkedModelSerializer):
@@ -51,12 +50,11 @@ class NGNewsDetailSerializer(serializers.HyperlinkedModelSerializer):
     author = serializers.ReadOnlyField(source='email_from')
     subject = serializers.ReadOnlyField()
     content = serializers.ReadOnlyField(source='contents')
-    creation_date = serializers.DateTimeField(source='date')
+    creation_date = serializers.DateTimeField(source='date', format='%Y-%m-%dT%H:%M:%SZ%z')
     groups = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    #children = RecursiveField(many=True)
+    children = RecursiveField(many=True, source='father')
 
     class Meta:
         model = NGNews
         fields = ('id', 'author', 'subject', 'content',
-                  'creation_date', 'groups')
-        #'children')
+                  'creation_date', 'groups', 'children')
