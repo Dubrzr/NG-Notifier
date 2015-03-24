@@ -21,8 +21,8 @@ from django.utils.translation import ugettext_lazy as _
 # SITE PARAMETERS
 
 SITE_NAME = "NG Notifier"
-DOMAIN = 'http://localhost/'
-SITE_URL_PREFIX = 'ng-notifier/'
+DOMAIN = 'http://localhost/'        # Must end with a slash! /!\
+SITE_URL_PREFIX = 'ng-notifier/'    # Empty or ng-notifier/ <- Must end with a slash /!\
 SITE_URL = DOMAIN + SITE_URL_PREFIX
 
 SECRET_KEY = ''
@@ -105,7 +105,7 @@ USE_TZ = True
 
 
 # STATICS
-STATIC_URL = SITE_URL_PREFIX + 'static/'
+STATIC_URL = '/' + SITE_URL_PREFIX + 'static/'
 
 # CONTEXT PROCESSORS -> adds some 'global' variables for templates
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
