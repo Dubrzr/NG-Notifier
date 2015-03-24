@@ -5,47 +5,7 @@ The current version is running [here](https://42portal.com/ng-notifier/).
 
 ## How to?
 
-### tldr;
-
-Read this if you have absolutely no time, or go below for more details.
-
-Execute this:
-
-```
-virtualenv -p /usr/bin/python3 --no-site-packages ng-notifier;
-cd ng-notifier;
-source bin/activate;
-git clone https://github.com/Dubrzr/NG-Notifier.git web;
-cd web;
-pip install -r requirements.txt;
-cd ng-notifier;
-cp example.settings.py settings.py;
-"${EDITOR:-vi}" settings.py;
-cd ..
-```
-
-Here generate a key for SECRET_KEY (google guys).
-Leave others parameters as they are if you are in a hurry! (or read more below...)
-
-Save changes, and continue with:
-
-```
-python manage.py install
-```
-
-And you will now be able to launch your server with:
-
-```
-python manage.py runserver
-```
-
-Run the notifier with:
-
-```
-python manage.py celery -A ngnotifier worker --beat --concurrency=1
-```
-
-
+Goto [tldr;](#tldr;) or start below.
 
 ### Initialization
 
@@ -113,3 +73,43 @@ You now have a ready to run application.
 
 This project is maintained, and any pull request will be reviewed! Even for
 grammar mistakes, and PEP-8.
+
+
+
+### tldr;
+
+Execute this:
+
+```
+virtualenv -p /usr/bin/python3 --no-site-packages ng-notifier;
+cd ng-notifier;
+source bin/activate;
+git clone https://github.com/Dubrzr/NG-Notifier.git web;
+cd web;
+pip install -r requirements.txt;
+cd ng-notifier;
+cp example.settings.py settings.py;
+"${EDITOR:-vi}" settings.py && cd ..
+```
+
+Here generate a key for SECRET_KEY (google guys).
+Leave others parameters as they are if you are in a hurry! (or read more below...)
+
+Save changes, and continue with:
+
+```
+python manage.py install
+```
+
+And you will now be able to launch your server with:
+
+```
+python manage.py runserver
+```
+
+Run the notifier with:
+
+```
+python manage.py celery -A ngnotifier worker --beat --concurrency=1
+```
+
