@@ -1,8 +1,9 @@
 from datetime import datetime
+from itertools import chain
+
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
-from itertools import chain
 
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
     print_done, print_exists,\
@@ -115,7 +116,7 @@ class NGHost(models.Model):
     timeout = models.IntegerField(max_length=120, default=30)
     nb_notifs_sent = models.IntegerField(default=0)
 
-    #known_news = models.ManyToManyField(NGNews)
+    # known_news = models.ManyToManyField(NGNews)
     nb_groups = models.IntegerField(default=0)
 
     def add_news(self, news):
@@ -127,7 +128,7 @@ class NGHost(models.Model):
                       self.user, self.password, self.timeout)
 
     def get_ordered_groups(self):
-        all_groups =  NGGroup.objects.filter(
+        all_groups = NGGroup.objects.filter(
             host=self
         ).order_by('name')
         result_list = list(chain(all_groups.filter(nb_news__gt=0),
@@ -170,7 +171,6 @@ class NGHost(models.Model):
                 new_news_list += ng_group.update_news(tmp_co, verbose=verbose)
         if check_kinship:
             kinship_updater(new_news_list)
-
 
 
 class NGGroup(models.Model):

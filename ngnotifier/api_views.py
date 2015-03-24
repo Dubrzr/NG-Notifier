@@ -1,4 +1,5 @@
 from datetime import datetime
+
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
@@ -51,7 +52,7 @@ def group_list(request, host):
         return HttpResponse(status=400)
 
     hosts = NGGroup.objects.filter(host=host)\
-                           .order_by('name')
+        .order_by('name')
     serializer = NGGroupSerializer(hosts, many=True)
     return JSONResponse(serializer.data)
 
@@ -80,7 +81,7 @@ def news_list(request, host, group):
         s_date = datetime.now()
 
     limit = int(request.GET.get('limit', '1000'))
-    if limit <1:
+    if limit < 1:
         return HttpResponse(status=400)
 
     try:
@@ -120,7 +121,7 @@ def news_list_refresh(request, host, group):
         e_date = datetime(1970, 1, 1, 00, 00)
 
     limit = int(request.GET.get('limit', '1000'))
-    if limit <1:
+    if limit < 1:
         return HttpResponse(status=400)
 
     try:

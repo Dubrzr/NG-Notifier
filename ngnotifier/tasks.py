@@ -1,5 +1,6 @@
 from __future__ import absolute_import
 import os
+
 os.environ['DJANGO_SETTINGS_MODULE'] = 'ngnotifier.settings'
 from datetime import timedelta
 from celery import Celery
@@ -21,9 +22,9 @@ app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 app.conf.update(
     # Broker settings.
-    BROKER_URL = 'sqla+sqlite:///db.sqlite3',
+    BROKER_URL='sqla+sqlite:///db.sqlite3',
 
-    CELERY_RESULT_BACKEND = 'db+sqlite:///results.db',
+    CELERY_RESULT_BACKEND='db+sqlite:///results.db',
 
     CELERY_TASK_SERIALIZER='json',
     CELERY_ACCEPT_CONTENT=['json'],
@@ -31,17 +32,18 @@ app.conf.update(
     CELERY_TIMEZONE='Europe/Paris',
     CELERY_ENABLE_UTC=True,
 
-    CELERYBEAT_SCHEDULE = {
+    CELERYBEAT_SCHEDULE={
         'every-minute': {
             'task': 'ngnotifier.tasks.update_news',
             'schedule': timedelta(seconds=SECONDS_DELTA),
-            },
+        },
         'every-day': {
             'task': 'ngnotifier.tasks.update_groups',
             'schedule': timedelta(seconds=86400),
-            },
-        }
+        },
+    }
 )
+
 
 @app.task
 def update_news():
@@ -71,9 +73,10 @@ def update_news():
     print('\t\tSent {} emails!'.format(m))
     print('\t\tSent {} pushs!'.format(p))
 
+
 # Add 24h task to update groups/host
 @app.task
 def update_groups():
     for ng_host in NGHost.objects.all():
-       ng_host.update_groups(groups=hosts[ng_host.host]['groups'],
-                             check_news=False, verbose=False)
+        ng_host.update_groups(groups=hosts[ng_host.host]['groups'],
+                              check_news=False, verbose=False)

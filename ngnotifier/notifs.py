@@ -1,7 +1,9 @@
 import smtplib
-from ngnotifier.settings import mail_conf as mail, FROM_ADDR, BOT_TAG, BOT_MSG
-from pushbullet import PushBullet
 from email.mime.text import MIMEText
+
+from pushbullet import PushBullet
+
+from ngnotifier.settings import mail_conf as mail, FROM_ADDR, BOT_TAG, BOT_MSG
 
 
 def send_email(msg, subject, from_addr, to_addrs, type):
@@ -11,7 +13,7 @@ def send_email(msg, subject, from_addr, to_addrs, type):
     msg['BCC'] = to_addrs
     try:
         if mail['ssl']:
-            server = smtplib.SMTP_SSL(mail['host'],mail['port'], timeout=10)
+            server = smtplib.SMTP_SSL(mail['host'], mail['port'], timeout=10)
         else:
             server = smtplib.SMTP(mail['host'], mail['port'], timeout=10)
     except Exception as err:
@@ -45,9 +47,9 @@ def send_notif(new_news, ng_group):
     followers = ng_group.followers.all()
     if followers.count() > 0:
         for ng_news in new_news:
-
             m_msg = ng_news.contents + ' ' + BOT_MSG\
-                    + '\nMessage sent in: ' + ' / '.join([n.name for n in ng_news.groups.all()])\
+                    + '\nMessage sent in: ' + ' / '.join(
+                [n.name for n in ng_news.groups.all()])\
                     + '\nMessage author: ' + ng_news.email_from
             m_subject = ng_news.subject + ' ' + BOT_TAG
             m_from_addr = FROM_ADDR

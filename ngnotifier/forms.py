@@ -1,10 +1,13 @@
 from _sha256 import sha224
 from uuid import uuid4
+
 from django.core.exceptions import ObjectDoesNotExist
-from django.forms import EmailField, CharField, BooleanField, PasswordInput
+from django.forms import EmailField, CharField, BooleanField
 from django import forms
 from captcha.fields import CaptchaField
+
 from ngnotifier.models import User
+
 
 class CaptchaForm(forms.Form):
     email = EmailField()
@@ -29,6 +32,7 @@ class CaptchaForm(forms.Form):
             new_user.email = email
             new_user.save()
             return new_user, token
+
 
 class SettingsForm(forms.Form):
     password = CharField(required=False, max_length=100)

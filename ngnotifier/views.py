@@ -12,20 +12,19 @@ from rest_framework.decorators import api_view
 from rest_framework.renderers import JSONRenderer
 from rest_framework.response import Response
 from rest_framework.reverse import reverse as rf_reverse
-
+from django.contrib.auth import logout
 
 from ngnotifier import settings
 from ngnotifier.forms import CaptchaForm, SettingsForm
 from ngnotifier.models import NGHost, NGGroup, NGNews, User
 from ngnotifier.notifs import send_email
-from django.contrib.auth import logout
 from ngnotifier.utils import serializable_object
 
 
 @never_cache
 def hosts(request):
     if request.user.is_authenticated():
-        request.session.set_expiry(2592000) # Session will expires in 30 days
+        request.session.set_expiry(2592000)  # Session will expires in 30 days
     if request.POST:
         form = CaptchaForm(request.POST)
         if form.is_valid():
@@ -59,6 +58,7 @@ def hosts(request):
         context,
         context_instance=RequestContext(request)
     )
+
 
 @never_cache
 def group2(request, id):
@@ -187,7 +187,8 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
-                return HttpResponseRedirect(reverse('ngnotifier.views.edit_settings'))
+                return HttpResponseRedirect(
+                    reverse('ngnotifier.views.edit_settings'))
     return HttpResponseRedirect(reverse('ngnotifier.views.hosts'))
 
 
@@ -196,6 +197,7 @@ class JSONResponse(HttpResponse):
     """
     An HttpResponse that renders its content into JSON.
     """
+
     def __init__(self, data, **kwargs):
         content = JSONRenderer().render(data)
         kwargs['content_type'] = 'application/json'

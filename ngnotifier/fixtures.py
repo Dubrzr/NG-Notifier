@@ -1,4 +1,5 @@
 from django.core.exceptions import ObjectDoesNotExist
+
 from ngnotifier.models import NGHost, NGGroup, User
 from ngnotifier.utils import print_msg, print_done, print_exists, print_fail
 from ngnotifier.settings import hosts, users

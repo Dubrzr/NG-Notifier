@@ -12,16 +12,17 @@ https://docs.djangoproject.com/en/1.7/ref/settings/
 
 """
 import os
-from datetime import timedelta
+
 from django.conf.global_settings import TEMPLATE_CONTEXT_PROCESSORS as TCP
 from django.utils.translation import ugettext_lazy as _
+
 
 
 # SITE PARAMETERS
 
 SITE_NAME = "NG Notifier"
-DOMAIN = 'https://42portal.com/'
-SITE_URL_PREFIX = 'ng-notifier/' # must end with '/'
+DOMAIN = 'http://localhost/'
+SITE_URL_PREFIX = 'ng-notifier/'
 SITE_URL = DOMAIN + SITE_URL_PREFIX
 
 SECRET_KEY = ''
@@ -39,9 +40,7 @@ TEMPLATE_DIRS = (BASE_DIR + '/templates',)
 STATIC_ROOT = APP_DIR + '/static/'
 STATICFILES_DIRS = (APP_DIR + '/web/static/',)
 
-ALLOWED_HOSTS = ['localhost', '127.0.0.1',
-                 'ng-notifier.42portal.com', '42portal.com',
-                 '42portal.com/ng-notifier']
+ALLOWED_HOSTS = ['localhost', '127.0.0.1']
 
 AUTH_USER_MODEL = 'ngnotifier.User'
 PASSWORD_HASHERS = ('django.contrib.auth.hashers.PBKDF2PasswordHasher',)
@@ -90,7 +89,7 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-        }
+    }
 }
 
 # I18N
@@ -106,7 +105,7 @@ USE_TZ = True
 
 
 # STATICS
-STATIC_URL = '/ng-notifier/static/'
+STATIC_URL = SITE_URL_PREFIX + 'static/'
 
 # CONTEXT PROCESSORS -> adds some 'global' variables for templates
 TEMPLATE_CONTEXT_PROCESSORS = TCP + (
@@ -118,18 +117,18 @@ TEMPLATE_CONTEXT_PROCESSORS = TCP + (
 # **** NOTIFS CONFIG **** #
 
 # Tag to be added to the message object
-BOT_TAG = '[BOT]' # Example: News title here [BOT]
+BOT_TAG = '[BOT]'  # Example: News title here [BOT]
 
 # Message to be displayed at the end of the news.
 BOT_MSG = '\nThis message has been sent automatically by the *NG NOTIFIER BOT*.'
 
-SEND_FROM_POSTER = False # Send the mail from the address of the news poster
+SEND_FROM_POSTER = False  # Send the mail from the address of the news poster
 FROM_ADDR = 'ng-notifier@42portal.com'
 
 mail_conf = {
     'address': '',
     'host': '',
-    'port': ,
+    'port': 0,
     'user': '',
     'pass': '',
     'ssl': True
@@ -138,9 +137,7 @@ mail_conf = {
 
 # **** CELERY CONFIG **** #
 
-SECONDS_DELTA = 60 # Time delta between two checks
-
-from celery.schedules import crontab
+SECONDS_DELTA = 60  # Time delta between two checks
 
 # **** HOSTS CONFIG **** #
 
@@ -151,14 +148,14 @@ hosts = {
             'port': 119,
             'user': None,
             'pass': None,
-            'ssl' : False,
+            'ssl': False,
             'timeout': 30,
-            'groups': [] # Means get all groups
+            'groups': []  # Means get all groups
         },
 }
 
-users = {}# {
-#    'Me':
+users = {}  # {
+# 'Me':
 #        {
 #            'mail': 'me@me.me',
 #            'notifs': {

@@ -1,8 +1,10 @@
 from subprocess import call
+import sys
+
 from django.core.management import call_command
 from django.core.management.base import BaseCommand
 from django.conf import settings
-import sys
+
 from ngnotifier.fixtures import NGFixtures, UserFixtures
 from ngnotifier.utils import bcolors
 
@@ -17,8 +19,8 @@ def query_yes_no(question, default="yes"):
 
     The "answer" return value is one of "yes" or "no".
     """
-    valid = {"yes":True,   "y":True,  "ye":True,
-             "no":False,     "n":False}
+    valid = {"yes": True, "y": True, "ye": True,
+             "no": False, "n": False}
     if default == None:
         prompt = " [y/n] "
     elif default == "yes":
@@ -45,12 +47,17 @@ class Command(BaseCommand):
            'and adds its fixtures'
 
     def handle(self, *args, **options):
-        print('Welcome to the %s installation procedure...' % settings.SITE_NAME)
-        print('Before installation please check twice your configuration in \'web/ngnotifier/settings.py\' file.')
+        print(
+            'Welcome to the %s installation procedure...' % settings.SITE_NAME)
+        print(
+            'Before installation please check twice your configuration in '
+            '\'web/ngnotifier/settings.py\' file.')
         print('Your settings are :')
-        print('-> MODE = ' + bcolors.WARNING + ('DEBUG' if settings.DEBUG else 'PRODUCTION') + bcolors.ENDC)
+        print('-> MODE = ' + bcolors.WARNING + (
+        'DEBUG' if settings.DEBUG else 'PRODUCTION') + bcolors.ENDC)
         print('-> DATABASE = ' + bcolors.WARNING + 'SQLITE3' + bcolors.ENDC)
-        print('-> TEMPLATE_DEBUG = ' + bcolors.WARNING + str(settings.TEMPLATE_DEBUG) + bcolors.ENDC)
+        print('-> TEMPLATE_DEBUG = ' + bcolors.WARNING + str(
+            settings.TEMPLATE_DEBUG) + bcolors.ENDC)
 
         if not query_yes_no('Confirm ?'):
             exit()
@@ -77,7 +84,7 @@ class Command(BaseCommand):
         self.stdout.write(bcolors.WARNING +
                           'Installing database...' +
                           bcolors.ENDC)
-        self.stdout.write( '-------------------->>')
+        self.stdout.write('-------------------->>')
         call("python manage.py migrate", shell=True)
         self.stdout.write('-------------------->> ' +
                           bcolors.OKGREEN + 'Done !\n\n' + bcolors.ENDC)
