@@ -5,6 +5,48 @@ The current version is running [here](https://42portal.com/ng-notifier/).
 
 ## How to?
 
+### tldr;
+
+Read this if you have absolutely no time, or go below for more details.
+
+Execute this:
+
+```
+virtualenv -p /usr/bin/python3 --no-site-packages ng-notifier;
+cd ng-notifier;
+source bin/activate;
+git clone https://github.com/Dubrzr/NG-Notifier.git web;
+cd web;
+pip install -r requirements.txt;
+cd ng-notifier;
+cp example.settings.py settings.py;
+"${EDITOR:-vi}" settings.py;
+cd ..
+```
+
+Here generate a key for SECRET_KEY (google guys).
+Leave others parameters as they are if you are in a hurry! (or read more below...)
+
+Save changes, and continue with:
+
+```
+python manage.py install
+```
+
+And you will now be able to launch your server with:
+
+```
+python manage.py runserver
+```
+
+Run the notifier with:
+
+```
+python manage.py celery -A ngnotifier worker --beat --concurrency=1
+```
+
+
+
 ### Initialization
 
 We will use the virtualenv way, assuming you have python 3, pip 3 & virtualenv installed, python is an alias for python3 and pip is an alias for pip3. 
@@ -56,6 +98,8 @@ Things you must/may modify:
 You are now able to install the application.
 
 Just type `python manage.py install` and it will do everything for you :)
+
+It may take a while if the server has a lot of news.
 
 You now have a ready to run application.
 

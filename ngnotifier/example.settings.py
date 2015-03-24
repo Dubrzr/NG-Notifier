@@ -21,14 +21,14 @@ from django.utils.translation import ugettext_lazy as _
 # SITE PARAMETERS
 
 SITE_NAME = "NG Notifier"
-DOMAIN = 'http://localhost/'        # Must end with a slash! /!\
-SITE_URL_PREFIX = 'ng-notifier/'    # Empty or ng-notifier/ <- Must end with a slash /!\
+DOMAIN = 'http://localhost/' # Must end with a slash! /!\
+SITE_URL_PREFIX = '' # Empty or your-prefix/ <- Must end with a slash /!\
 SITE_URL = DOMAIN + SITE_URL_PREFIX
 
 SECRET_KEY = ''
 
-DEBUG = True
-TEMPLATE_DEBUG = True
+DEBUG = False
+TEMPLATE_DEBUG = False
 
 LOGIN_REDIRECT_URL = '/settings'
 
