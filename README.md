@@ -5,7 +5,7 @@ The current version is running [here](https://42portal.com/ng-notifier/).
 
 ## How to?
 
-Goto [tldr;](#tldr;) or start below.
+Goto [tldr;](#tldr) or start below.
 
 ### Initialization
 
