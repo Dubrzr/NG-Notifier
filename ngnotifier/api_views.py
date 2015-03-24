@@ -144,7 +144,6 @@ def news_detail(request, host, group, news_id):
     """
     Retrieve a news details with all answers
     """
-    print("lol")
     try:
         host = NGHost.objects.get(host=host)
     except NGHost.DoesNotExist:

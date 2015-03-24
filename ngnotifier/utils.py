@@ -172,10 +172,9 @@ def serializable_object(node, put_children=False, tab=0):
                         + ('● ' if has_children > 0 else '○ ') + node.subject
                         + ' <b>' + node.email_from + '</b>',
         'children': sorted(
-            [serializable_object(c, put_children, tab + 1) for c in
-             [ch for ch in node.get_children()]
-            ],
+            [serializable_object(c, put_children, tab + 1) for c in node.get_children()],
             key=lambda x: x['date'],
-            reverse=True) if put_children and has_children else []
+            reverse=True
+        ) if put_children and has_children else []
     }
     return obj

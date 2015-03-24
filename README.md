@@ -7,7 +7,7 @@ The current version is running [here](https://42portal.com/ng-notifier/).
 
 ### Initialization
 
-We will use the virtualenv way, assuming you have python 3 & virtualenv installed, and python is an alias for python3. 
+We will use the virtualenv way, assuming you have python 3, pip 3 & virtualenv installed, python is an alias for python3 and pip is an alias for pip3. 
 
 * First, create a virtual environment with `virtualenv -p /usr/bin/python3 --no-site-packages ng-notifier`.
 * Second, enter the VE using `cd ng-notifier; source bin/activate`.

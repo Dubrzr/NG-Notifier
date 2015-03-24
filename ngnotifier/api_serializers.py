@@ -4,6 +4,9 @@ from ngnotifier.models import NGHost, NGGroup, NGNews
 
 
 # Serializers
+from ngnotifier.utils import ng_news_has_children
+
+
 class NGHostSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(source='pk')
     host_url = serializers.ReadOnlyField(source='host')
@@ -54,7 +57,23 @@ class NGNewsDetailSerializer(serializers.HyperlinkedModelSerializer):
     creation_date = serializers.DateTimeField(source='date',
                                               format='%Y-%m-%dT%H:%M:%S%z')
     groups = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
-    children = RecursiveField(many=True, source='father')
+    children = serializers.SerializerMethodField('serialize_children')
+
+    def serialize_children(self, node):
+        has_children = ng_news_has_children(node)
+        obj = {
+            'id': node.id,
+            'author': node.email_from,
+            'subject': node.subject,
+            'content': node.contents,
+            'creation_date': node.date,
+            'children': sorted(
+                [self.serialize_children(c) for c in node.get_children()],
+                key=lambda x: x['creation_date'],
+                reverse=True
+            ) if has_children else []
+        }
+        return obj
 
     class Meta:
         model = NGNews
