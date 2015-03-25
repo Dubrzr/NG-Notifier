@@ -104,6 +104,8 @@ class NGNews(models.Model):
     def get_children(self):
         return NGNews.objects.filter(father=self.message_id)
 
+    def get_groups(self):
+        return [c.name for c in self.groups.all()]
 
 class NGHost(models.Model):
     host = models.TextField(unique=True)

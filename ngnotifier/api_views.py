@@ -4,6 +4,8 @@ from django.views.decorators.cache import never_cache
 from django.http import HttpResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 from ngnotifier.models import NGHost, NGGroup, NGNews
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
@@ -139,7 +141,7 @@ def news_list_refresh(request, host, group):
 
 @never_cache
 @csrf_exempt
-@require_http_methods("GET")
+@api_view(['GET'])
 def news_detail(request, host, group, news_id):
     """
     Retrieve a news details with all answers
@@ -160,4 +162,6 @@ def news_detail(request, host, group, news_id):
         return HttpResponse(status=400)
 
     serializer = NGNewsDetailSerializer(news)
-    return JSONResponse(serializer.data)
+    print(serializer.to_representation(news))
+    print(serializer.data)
+    return JSONResponse(serializer.to_representation(news))
