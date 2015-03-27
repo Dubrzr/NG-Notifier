@@ -5,7 +5,7 @@ The current version is running [here](https://42portal.com/ng-notifier/).
 
 ## How to?
 
-Goto [tldr;](#tldr) or start below.
+Goto [tl;dr](#tldr) or start below.
 
 ### Initialization
 
@@ -76,7 +76,7 @@ grammar mistakes, and PEP-8.
 
 
 
-### tldr;
+### tldr
 
 Execute this:
 
@@ -93,7 +93,7 @@ cp example.settings.py settings.py;
 ```
 
 Here generate a key for SECRET_KEY (google guys).
-Leave others parameters as they are if you are in a hurry! (or read more below...)
+Leave others parameters as they are if you are in a hurry!
 
 Save changes, and continue with:
 
