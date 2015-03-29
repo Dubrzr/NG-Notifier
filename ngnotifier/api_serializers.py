@@ -55,6 +55,6 @@ class NGNewsDetailSerializer(serializers.BaseSerializer):
             'children': sorted(
                 [self.to_representation(c) for c in node.get_children()],
                 key=lambda x: x['creation_date'],
-                reverse=True
+                reverse=False
             ) if has_children else []
         }
