@@ -1,3 +1,4 @@
+import datetime
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import login as auth_login, authenticate
@@ -18,13 +19,11 @@ from ngnotifier import settings
 from ngnotifier.forms import CaptchaForm, SettingsForm
 from ngnotifier.models import NGHost, NGGroup, NGNews, User
 from ngnotifier.notifs import send_email
-from ngnotifier.utils import serializable_object
+from ngnotifier.utils import serializable_object, post_article
 
 
 @never_cache
 def hosts(request):
-    if request.user.is_authenticated():
-        request.session.set_expiry(2592000)  # Session will expires in 30 days
     if request.POST:
         form = CaptchaForm(request.POST)
         if form.is_valid():
@@ -170,9 +169,35 @@ def edit_settings(request):
         form = SettingsForm(request.POST)
         if form.is_valid():
             form.save(request.user)
-            print('saved')
     return render_to_response(
         'settings.html',
+        context_instance=RequestContext(request)
+    )
+
+
+@login_required
+def post(request):
+    if request.POST:
+        groups = request.POST.getlist('groups')
+        subject = request.POST.get('subject')
+        name = request.POST.get('name')
+        email = request.POST.get('email')
+        contents = request.POST.get('contents')
+
+        groups = [NGGroup.objects.get(id=id) for id in groups]
+
+        if post_article(name, email, groups, subject, contents):
+            return render_to_response(
+                'news_posted.html',
+                context_instance=RequestContext(request)
+            )
+    hosts = NGHost.objects.all()
+    context = {
+        'hosts': hosts,
+        }
+    return render_to_response(
+        'post.html',
+        context,
         context_instance=RequestContext(request)
     )
 
@@ -187,6 +212,8 @@ def login_user(request):
         if user is not None:
             if user.is_active:
                 login(request, user)
+                # Session will expires in 30 days
+                request.session.set_expiry(2592000)
                 return HttpResponseRedirect(
                     reverse('ngnotifier.views.edit_settings'))
     return HttpResponseRedirect(reverse('ngnotifier.views.hosts'))

@@ -32,6 +32,7 @@ base_urlpatterns = patterns(
         name='group_follow'),
     url(r'^group/unfollow/(?P<id>[0-9]+)/$', 'ngnotifier.views.group_unfollow',
         name='group_unfollow'),
+    url(r'^post/$', 'ngnotifier.views.post', name='post'),
     url(r'^news/(?P<id>[0-9A-Za-z]+)/$', 'ngnotifier.views.news', name='news'),
     url(r'^news2/(?P<id>[0-9A-Za-z]+)/$', 'ngnotifier.views.news2',
         name='news2'),

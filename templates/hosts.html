@@ -2,47 +2,49 @@
 {% load ngnotifier_filters %}
 
 {% block contents %}
-	<div class="bs-docs-section clearfix" style="margin-top: 1em">
-		<div class="row">
+  <div class="bs-docs-section clearfix" style="margin-top: 1em">
+    <div class="row">
 
-			<div class="leftcol col-lg-3 well bs-component">
-				<fieldset>
-					<div class="form-group">
-						<input class="form-control input-sm" type="text" id="inputSmall" placeholder="Search a news, a word, ... (Available soon!)">
-					</div>
-				</fieldset>
-				{% for host in hosts|sort_hosts %}
-					<h4><b>{{ host.host }} [{{ host.nb_groups }}]</b></h4>
-					<ul style="list-style-type: none; margin-left: -50px">
-						{% for group in host.get_ordered_groups %}
-							<li>
-								{% if user.is_authenticated %}
-									{% if user in group.followers.all %}
-										<button class="follow" value="unfollow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-check-square"></i></button>&nbsp;
-									{% else %}
-										<button class="follow" value="follow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-square"></i></button>&nbsp;
-									{% endif %}
-								{% endif %}
-								<a data-group="{{ group.id }}" class="group-link" href="#">
-									<span class="badge">{{ group.nb_news }}</span>
-									{{ group.name }}
-								</a>
-							</li>
-						{% endfor %}
-					</ul>
-				{% endfor %}
-			</div>
-			<div class="col-lg-9">
-				<div id="news-list" style="height: 200px;" class=" well bs-component">
-					<h3 style="text-align: center">Click on a group to review its news!</h3>
-					{% if user.is_authenticated %}
-					{% else %}
-					<h3 style="text-align: center">You can also receive notifs by subscribing!</h3>
-					{% endif %}
-				</div>
-				<div style="margin-top: 1em" id="contents" class=" well bs-component">
-				</div>
-			</div>
-		</div>
-	</div>
+      <div class="leftcol col-lg-3 well bs-component">
+        <fieldset>
+          <div class="form-group">
+            <input class="form-control input-sm" type="text" id="inputSmall" placeholder="Search a news, a word, ... (Available soon!)">
+          </div>
+        </fieldset>
+        {% with user.get_groups_followed as followed_groups %}
+        {% for host in hosts|sort_hosts %}
+          <h4><b>{{ host.host }} [{{ host.nb_groups }}]</b></h4>
+          <ul style="list-style-type: none; margin-left: -50px">
+            {% for group in host.get_ordered_groups %}
+              <li>
+                {% if user.is_authenticated %}
+                  {% if group.id in followed_groups %} {# THIS LINE IS SLOWING DOWN THE PAGE LOADING #}
+                    <button class="follow" value="unfollow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-check-square"></i></button>&nbsp;
+                  {% else %}
+                    <button class="follow" value="follow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-square"></i></button>&nbsp;
+                  {% endif %}
+                {% endif %}
+                <a data-group="{{ group.id }}" class="group-link" href="#">
+                  <span class="badge">{{ group.nb_news }}</span>
+                  {{ group.name }}
+                </a>
+              </li>
+            {% endfor %}
+          </ul>
+        {% endfor %}
+        {% endwith %}
+      </div>
+      <div class="col-lg-9">
+        <div id="news-list" style="height: 200px;" class=" well bs-component">
+          <h3 style="text-align: center">Click on a group to review its news!</h3>
+          {% if user.is_authenticated %}
+          {% else %}
+          <h3 style="text-align: center">You can also receive notifs by subscribing!</h3>
+          {% endif %}
+        </div>
+        <div style="margin-top: 1em" id="contents" class=" well bs-component">
+        </div>
+      </div>
+    </div>
+  </div>
 {% endblock contents %}

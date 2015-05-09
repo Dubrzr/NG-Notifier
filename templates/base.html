@@ -1,410 +1,409 @@
 {% load staticfiles %}
 <!DOCTYPE html>
 <html lang="en">
-	<head>
-	    <meta charset="utf-8">
-	    <title>NG Notifer - NNTP News reader & Notifier</title>
-		<meta name="description" content="Newsgroup Email/Pushbullet notifier">
-		<meta name="viewport" content="width=device-width, initial-scale=1">
-		<meta http-equiv="X-UA-Compatible" content="IE=edge" />
-		<script src="{% static "assets/javascripts/pace.min.js" %}"></script>
-		<link rel="stylesheet" href="{% static "assets/stylesheets/bootstrap.min.css" %}" media="screen">
-		<link rel="stylesheet" href="{% static "assets/stylesheets/bootswatch.min.css" %}">
-		<link rel="stylesheet" href="{% static "assets/stylesheets/font-awesome.min.css" %}">
-		<style>
-			html {
-				overflow: -moz-scrollbars-vertical;
-				overflow-y: scroll;
-			}
-			.pace {
-				-webkit-pointer-events: none;
-				pointer-events: none;
-				-webkit-user-select: none;
-				-moz-user-select: none;
-				user-select: none;
-			}
+  <head>
+      <meta charset="utf-8">
+      <title>NG Notifier - NNTP News reader & Notifier</title>
+    <meta name="description" content="Newsgroup Email/Pushbullet notifier">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <script src="{% static "assets/javascripts/pace.min.js" %}"></script>
+    <link rel="stylesheet" href="{% static "assets/stylesheets/bootstrap.min.css" %}" media="screen">
+    <link rel="stylesheet" href="{% static "assets/stylesheets/bootswatch.min.css" %}">
+    <link rel="stylesheet" href="{% static "assets/stylesheets/font-awesome.min.css" %}">
+    <style>
+      html {
+        overflow: -moz-scrollbars-vertical;
+        overflow-y: scroll;
+      }
+      .pace {
+        -webkit-pointer-events: none;
+        pointer-events: none;
+        -webkit-user-select: none;
+        -moz-user-select: none;
+        user-select: none;
+      }
 
-			.pace-inactive {
-				display: none;
-			}
+      .pace-inactive {
+        display: none;
+      }
 
-			.pace .pace-progress {
-				background: #5c2040;
-				position: fixed;
-				z-index: 2000;
-				top: 0;
-				right: 100%;
-				width: 100%;
-				height: 3px;
-			}
+      .pace .pace-progress {
+        background: #5c2040;
+        position: fixed;
+        z-index: 2000;
+        top: 0;
+        right: 100%;
+        width: 100%;
+        height: 3px;
+      }
 
-			.pace .pace-progress-inner {
-				display: block;
-				position: absolute;
-				right: 0px;
-				width: 100px;
-				height: 100%;
-				box-shadow: 0 0 10px #5c2040, 0 0 5px #5c2040;
-				opacity: 1.0;
-				-webkit-transform: rotate(3deg) translate(0px, -4px);
-				-moz-transform: rotate(3deg) translate(0px, -4px);
-				-ms-transform: rotate(3deg) translate(0px, -4px);
-				-o-transform: rotate(3deg) translate(0px, -4px);
-				transform: rotate(3deg) translate(0px, -4px);
-			}
+      .pace .pace-progress-inner {
+        display: block;
+        position: absolute;
+        right: 0px;
+        width: 100px;
+        height: 100%;
+        box-shadow: 0 0 10px #5c2040, 0 0 5px #5c2040;
+        opacity: 1.0;
+        -webkit-transform: rotate(3deg) translate(0px, -4px);
+        -moz-transform: rotate(3deg) translate(0px, -4px);
+        -ms-transform: rotate(3deg) translate(0px, -4px);
+        -o-transform: rotate(3deg) translate(0px, -4px);
+        transform: rotate(3deg) translate(0px, -4px);
+      }
 
-			.pace .pace-activity {
-				display: block;
-				position: fixed;
-				z-index: 2000;
-				top: 60px;
-				right: 15px;
-				width: 25px;
-				height: 25px;
-				border: solid 2px transparent;
-				border-top-color: #5c2040;
-				border-left-color: #5c2040;
-				border-radius: 10px;
-				-webkit-animation: pace-spinner 400ms linear infinite;
-				-moz-animation: pace-spinner 400ms linear infinite;
-				-ms-animation: pace-spinner 400ms linear infinite;
-				-o-animation: pace-spinner 400ms linear infinite;
-				animation: pace-spinner 400ms linear infinite;
-			}
+      .pace .pace-activity {
+        display: block;
+        position: fixed;
+        z-index: 2000;
+        top: 60px;
+        right: 15px;
+        width: 25px;
+        height: 25px;
+        border: solid 2px transparent;
+        border-top-color: #5c2040;
+        border-left-color: #5c2040;
+        border-radius: 10px;
+        -webkit-animation: pace-spinner 400ms linear infinite;
+        -moz-animation: pace-spinner 400ms linear infinite;
+        -ms-animation: pace-spinner 400ms linear infinite;
+        -o-animation: pace-spinner 400ms linear infinite;
+        animation: pace-spinner 400ms linear infinite;
+      }
 
-			@-webkit-keyframes pace-spinner {
-				0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
-				100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
-			}
-			@-moz-keyframes pace-spinner {
-				0% { -moz-transform: rotate(0deg); transform: rotate(0deg); }
-				100% { -moz-transform: rotate(360deg); transform: rotate(360deg); }
-			}
-			@-o-keyframes pace-spinner {
-				0% { -o-transform: rotate(0deg); transform: rotate(0deg); }
-				100% { -o-transform: rotate(360deg); transform: rotate(360deg); }
-			}
-			@-ms-keyframes pace-spinner {
-				0% { -ms-transform: rotate(0deg); transform: rotate(0deg); }
-				100% { -ms-transform: rotate(360deg); transform: rotate(360deg); }
-			}
-			@keyframes pace-spinner {
-				0% { transform: rotate(0deg); transform: rotate(0deg); }
-				100% { transform: rotate(360deg); transform: rotate(360deg); }
-			}
-			.leftcol {
-				height: 80vh;
-				overflow-y: scroll;
-			}
-			footer {
-				margin: 2em 0;
-				margin-bottom: 1em;
-			}
-		</style>
-	</head>
+      @-webkit-keyframes pace-spinner {
+        0% { -webkit-transform: rotate(0deg); transform: rotate(0deg); }
+        100% { -webkit-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      @-moz-keyframes pace-spinner {
+        0% { -moz-transform: rotate(0deg); transform: rotate(0deg); }
+        100% { -moz-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      @-o-keyframes pace-spinner {
+        0% { -o-transform: rotate(0deg); transform: rotate(0deg); }
+        100% { -o-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      @-ms-keyframes pace-spinner {
+        0% { -ms-transform: rotate(0deg); transform: rotate(0deg); }
+        100% { -ms-transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      @keyframes pace-spinner {
+        0% { transform: rotate(0deg); transform: rotate(0deg); }
+        100% { transform: rotate(360deg); transform: rotate(360deg); }
+      }
+      .leftcol {
+        height: 80vh;
+        overflow-y: scroll;
+      }
+      footer {
+        margin: 2em 0;
+        margin-bottom: 1em;
+      }
+    </style>
+  </head>
 
-	<body>
-	<div class="navbar navbar-default navbar-fixed-top">
-		<div class="container">
-			<div class="navbar-header">
-				<a class="navbar-brand"><b>NG Notifier</b></a>
-				<button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-					<span class="icon-bar"></span>
-				</button>
-			</div>
-			<div class="navbar-collapse collapse" id="navbar-main">
-				<ul class="nav navbar-nav">
-					<li>
-						<a href="{% url 'home' %}">Home</a>
-					</li>
-					<li>
-						<a href="{% url 'help' %}">Help</a>
-					</li>
-					<li>
-						<a href="#">{{ nb_users }} subscribers!</a>
-					</li>
-					<li>
-						<a href="#">{{ nb_notifs_sent }} notifs sent!</a>
-					</li>
-				</ul>
+  <body>
+  <div class="navbar navbar-default navbar-fixed-top">
+    <div class="container">
+      <div class="navbar-header">
+        <a class="navbar-brand"><b>NG Notifier</b></a>
+        <button class="navbar-toggle" type="button" data-toggle="collapse" data-target="#navbar-main">
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+          <span class="icon-bar"></span>
+        </button>
+      </div>
+      <div class="navbar-collapse collapse" id="navbar-main">
+        <ul class="nav navbar-nav">
+          <li>
+            <a href="{% url 'home' %}">Home&nbsp;<span class="fa fa-home"></span></a>
+          </li>
+          {% if user.is_authenticated %}<li>
+            <a href="{% url 'post' %}">Post&nbsp;<span class="fa fa-envelope"></span></a>
+          </li>{% endif %}
+          <li>
+            <a style="margin:-10px;font-size:10pt;padding-bottom: 5px;margin-left: 0;">
+            {{ nb_users }} subscribers!<br>
+            {{ nb_notifs_sent }} notifs sent!
+            </a>
+          </li>
+        </ul>
+        <ul class="nav navbar-nav navbar-right">
+          <li>
+            <a href="{% url 'help' %}">Help&nbsp;<span class="fa fa-info"></span></a>
+          </li>
+        {% if user.is_authenticated %}
+          <li class="dropdown">
+            <a class="dropdown-toggle" data-toggle="dropdown" href="#" id="download" aria-expanded="false">{{ user.email }}&nbsp;<span class="fa fa-user"></span></a>
+            <ul class="dropdown-menu" aria-labelledby="download">
+              <li><a href="{% url 'edit_settings' %}">Settings&nbsp;<span class="fa fa-wrench"></span></a></li>
+              <li class="divider"></li>
+              <li><a href="{% url 'logout' %}">Logout&nbsp;<span class="fa fa-sign-out"></span></a></li>
+            </ul>
+        {% else %}
+          <form class="navbar-form navbar-left" role="search" action="javascript:open_modal();">
+            {% csrf_token %}
+            <div class="form-group">
+              <input id="email" type="text" class="form-control" placeholder="Email">
+            </div>
+            <button id="notify" type="button" class="btn btn-primary">
+              <b>Subscribe!</b>
+            </button>
+          </form>
+          <li>
+            <a href="#" id="login_modal" type="button" class="btn btn-primary">
+              <b>Sign in</b>
+            </a>
+          </li>
+        {% endif %}
+        </ul>
+
+      </div>
+    </div>
+  </div>
 
 
-				<ul class="nav navbar-nav navbar-right">
-				{% if user.is_authenticated %}
-					<li id="youare">
-						<a>Connected as {{ user.email }}</a>
-					</li>
-					<li id="youare">
-						<a  href="{% url 'edit_settings' %}">Settings</a>
-					</li>
-					<li id="youare">
-						<a  href="{% url 'logout' %}">Logout... :(</a>
-					</li>
-				{% else %}
-					<form class="navbar-form navbar-left" role="search" action="javascript:open_modal();">
-						{% csrf_token %}
-						<div class="form-group">
-							<input id="email" type="text" class="form-control" placeholder="Email">
-						</div>
-						<button id="notify" type="button" class="btn btn-primary">
-							<b>Subscribe!</b>
-						</button>
-					</form>
-					<li>
-						<a href="#" id="login_modal" type="button" class="btn btn-primary">
-							<b>Sign in</b>
-						</a>
-					</li>
-				{% endif %}
-				</ul>
+  <div class="container">
+    {% block contents %}{% endblock contents %}
+  {% if not user.is_authenticated %}
+    <!-- Modal -->
+    <div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
 
-			</div>
-		</div>
-	</div>
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="myModalLabel">Are you a robot?</h4>
+          </div>
 
+          <form action='.' method='POST'>
+            <div class="modal-body">
+              {% csrf_token %}
+              {{ form }}
+              <h3>Note: After submission, if you are redirected to the home page, you failed the Captcha!</h3>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Submit</button>
+              <button type="button" class="btn btn-warning" id="js-captcha-refresh">Refresh captcha</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+    <div class="modal fade" id="mySigInModal" tabindex="-1" role="dialog" aria-labelledby=mySigInModalLabel" aria-hidden="true">
+      <div class="modal-dialog">
+        <div class="modal-content">
+          <div class="modal-header">
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
+            <h4 class="modal-title" id="mySigInModalLabel">Sign in</h4>
+          </div>
+          <form action='{% url 'login' %}' method='POST'>
+            <input type="hidden" name="next" value="/settings" />
+            {% csrf_token %}
+            <div class="modal-body">
+              <div class="form-group">
+                <label class="control-label" for="username">Email address</label>
+                <input type="text" name="username" class="form-control" id="inputEmail" placeholder="Email">
+              </div>
+              <div class="form-group">
+                <label class="control-label" for="username">Password</label>
+                <input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password">
+              </div>
+            </div>
+            <div class="modal-footer">
+              <button type="submit" class="btn btn-success">Submit</button>
+              <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  {% endif %}
+    <footer>
+      <div class="row">
+        <div class="col-lg-12">
 
-	<div class="container">
-		{% block contents %}{% endblock contents %}
-	{% if not user.is_authenticated %}
-		<!-- Modal -->
-		<div class="modal fade" id="myModal" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
+          <ul class="list-unstyled">
+            <li class="pull-right"><a href="#top">Back to top</a></li>
+          </ul>
+          <p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
+          <p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
+          <p>Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a> made by <a href="http://www.kevinsztern.fr/" target="_blank">Kevin Sztern</a>.</p>
 
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="myModalLabel">Are you a robot?</h4>
-					</div>
+        </div>
+      </div>
 
-					<form action='.' method='POST'>
-						<div class="modal-body">
-							{% csrf_token %}
-							{{ form }}
-							<h3>Note: After submission, if you are redirected to the home page, you failed the Captcha!</h3>
-						</div>
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-success">Submit</button>
-							<button type="button" class="btn btn-warning" id="js-captcha-refresh">Refresh captcha</button>
-							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-		<div class="modal fade" id="mySigInModal" tabindex="-1" role="dialog" aria-labelledby=mySigInModalLabel" aria-hidden="true">
-			<div class="modal-dialog">
-				<div class="modal-content">
-					<div class="modal-header">
-						<button type="button" class="close" data-dismiss="modal" aria-label="Close"><span aria-hidden="true">&times;</span></button>
-						<h4 class="modal-title" id="mySigInModalLabel">Sign in</h4>
-					</div>
-					<form action='{% url 'login' %}' method='POST'>
-						<input type="hidden" name="next" value="/settings" />
-						{% csrf_token %}
-						<div class="modal-body">
-							<div class="form-group">
-								<label class="control-label" for="username">Email address</label>
-								<input type="text" name="username" class="form-control" id="inputEmail" placeholder="Email">
-							</div>
-							<div class="form-group">
-								<label class="control-label" for="username">Password</label>
-								<input type="password" name="password" class="form-control" id="inputPassword" placeholder="Password">
-							</div>
-						</div>
-						<div class="modal-footer">
-							<button type="submit" class="btn btn-success">Submit</button>
-							<button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
-						</div>
-					</form>
-				</div>
-			</div>
-		</div>
-	{% endif %}
-		<footer>
-			<div class="row">
-				<div class="col-lg-12">
+    </footer>
+  </div>
+  <script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
+  <script src="{% static "assets/javascripts/bootstrap.min.js" %}"></script>
+  {% include "snippets/analytics.html" %}
+  <script>
+    function validateEmail(email) {
+      var re = /^\S+@\S+$/;
+      return re.test(email);
+    }
 
-					<ul class="list-unstyled">
-						<li class="pull-right"><a href="#top">Back to top</a></li>
-					</ul>
-					<p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
-					<p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
-					<p>Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a> made by <a href="http://www.kevinsztern.fr/" target="_blank">Kevin Sztern</a>.</p>
+    function list_news_rec(json, li) {
+      //console.log(li);
+      var newNode;
+      var newLi;
+      $.each(json, function (key, value) {
+        //console.log(value);
+        newLi = $('<li>');
+        newNode = $('<a>').addClass('news-link-unroll').attr('href', '#').attr('data-id', value['id']).html(value['display-name']);
+        newNode.appendTo(newLi);
+        //console.log(newLi);
+        //newNode = '<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>';
+        li.after(newLi);
+        //ul.insertBefore(newNode, li.nextSibling);
+        //ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
+        list_news_rec(value['children'], newLi);
+        //li = newNode;
+      });
+    }
 
-				</div>
-			</div>
+    function add_urls(text) {
+      var urlRegex = /(https?:\/\/[^\s]+)/g;
+      return text.replace(urlRegex, function(url) {
+        return '<a target="_blank" href="' + url + '">' + url + '</a>';
+      })
+    }
 
-		</footer>
-	</div>
-	<script src="//code.jquery.com/jquery-1.10.2.min.js"></script>
-	<script src="{% static "assets/javascripts/bootstrap.min.js" %}"></script>
-	{% include "snippets/analytics.html" %}
-	<script>
-		function validateEmail(email) {
-			var re = /^\S+@\S+$/;
-			return re.test(email);
-		}
+    function open_modal() {
+      var email = document.getElementById('email');
+      if (!validateEmail(email.value))
+        email.style.borderColor = "#5c2040";
+      else
+      {
+        $("#myModal").modal("show");
+        $('#id_email').val(email.value);
+        $('#js-captcha-refresh').click(function(){
+          $form = $(this).parents('form');
+          var url_img = $(".captcha").attr('src');
+          $.ajax({
+            url: url_img
+          }).done(function (json) {
+            $(".captcha").attr("src", url_img +'?' + new Date().getTime());
+          });
 
-		function list_news_rec(json, li) {
-			//console.log(li);
-			var newNode;
-			var newLi;
-			$.each(json, function (key, value) {
-				//console.log(value);
-				newLi = $('<li>');
-				newNode = $('<a>').addClass('news-link-unroll').attr('href', '#').attr('data-id', value['id']).html(value['display-name']);
-				newNode.appendTo(newLi);
-				//console.log(newLi);
-				//newNode = '<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>';
-				li.after(newLi);
-				//ul.insertBefore(newNode, li.nextSibling);
-				//ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
-				list_news_rec(value['children'], newLi);
-				//li = newNode;
-			});
-		}
+          return false;
+        });
+      }
+    }
 
-		function add_urls(text) {
-			var urlRegex = /(https?:\/\/[^\s]+)/g;
-			return text.replace(urlRegex, function(url) {
-				return '<a target="_blank" href="' + url + '">' + url + '</a>';
-			})
-		}
+    $("#login_modal").click(function() {
+      $('#mySigInModal').modal('show');
+    });
 
-		function open_modal() {
-			var email = document.getElementById('email');
-			if (!validateEmail(email.value))
-				email.style.borderColor = "#5c2040";
-			else
-			{
-				$("#myModal").modal("show");
-				$('#id_email').val(email.value);
-				$('#js-captcha-refresh').click(function(){
-					$form = $(this).parents('form');
-					var url_img = $(".captcha").attr('src');
-					$.ajax({
-						url: url_img
-					}).done(function (json) {
-						$(".captcha").attr("src", url_img +'?' + new Date().getTime());
-					});
+    $(function() {
+      $(".group-link").click(function(event){
+        var group_id = this.getAttribute('data-group');
+        var contents = $("#news-list");
+        //contents.html("");
+        contents.css("overflow","auto");
+        event.preventDefault();
+        var count = 0;
+        $.ajax({
+          url: '/{{ site_url_prefix }}group2/' + group_id + '/'
+        }).done(function(json) {
+          contents.html("");
+          if (jQuery.isEmptyObject(json))
+            contents.html('<h3 style="text-align: center">Nothing in this group! :(</h3>');
+          else {
+            var ul = $('<ul>').appendTo('#news-list');
+            ul.css("list-style-type", "none");
+            ul.css("margin-left", "-30px");
+            $.each(json, function (key, value) {
+              ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
+            });
+            if (count > 9)
+              contents.css("overflow", "scroll");
 
-					return false;
-				});
-			}
-		}
-
-		$("#login_modal").click(function() {
-			$('#mySigInModal').modal('show');
-		});
-
-		$(function() {
-			$(".group-link").click(function(event){
-				var group_id = this.getAttribute('data-group');
-				var contents = $("#news-list");
-				//contents.html("");
-				contents.css("overflow","auto");
-				event.preventDefault();
-				var count = 0;
-				$.ajax({
-					url: '/{{ site_url_prefix }}group2/' + group_id + '/'
-				}).done(function(json) {
-					contents.html("");
-					if (jQuery.isEmptyObject(json))
-						contents.html('<h3 style="text-align: center">Nothing in this group! :(</h3>');
-					else {
-						var ul = $('<ul>').appendTo('#news-list');
-						ul.css("list-style-type", "none");
-						ul.css("margin-left", "-30px");
-						$.each(json, function (key, value) {
-							ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
-						});
-						if (count > 9)
-							contents.css("overflow", "scroll");
-
-						$(".news-link").click(function(event) {
-							var news_id = this.getAttribute('data-id');
-							event.preventDefault();
-							var tmp_li = $(this).parent();
-							if (this.hasAttribute('data-unroll'))
-							{
-								$(this).removeAttr('data-unroll');
-								$('.news-link-unroll').parent().remove();
-							}
-							else if (this.innerHTML.indexOf('â—‹') === -1 && !this.hasAttribute('data-unroll')) {
-								this.setAttribute('data-unroll', true);
-								$.ajax({
-									url: '/{{ site_url_prefix }}news2/' + news_id + '/'
-								}).done(function (json) {
-									$("#contents").html("");
-									list_news_rec(json['children'], tmp_li);
-									$(".news-link-unroll").click(function(event) {
-										var news_id = this.getAttribute('data-id');
-										event.preventDefault();
-										$.ajax({
-											url: '/{{ site_url_prefix }}news/' + news_id + '/'
-										}).done(function (json) {
-											$("#contents").html("");
-											$('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
-											$('<h5>').appendTo('#contents').html(
-													'<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
-													'<b>From:</b> ' + json['from'] + '<br>' +
-													'<b>Date:</b> ' + json['date']
-											);
-											$('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
-										});
-									});
-								});
-							}
-							$.ajax({
-								url: '/{{ site_url_prefix }}news/' + news_id + '/'
-							}).done(function (json) {
-								$("#contents").html("");
-								$('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
-								$('<h5>').appendTo('#contents').html(
-										'<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
-										'<b>From:</b> ' + json['from'] + '<br>' +
-										'<b>Date:</b> ' + json['date']
-								);
-								$('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
-							});
-						});
-					}
-				});
-			});
-			$("#notify").click(function() {
-				open_modal();
-			});
-			{% if user.is_authenticated %}
-				$(document).on("click", ".follow", function(e) {
-					e.preventDefault();
-					var action = $(this).attr("value");
-					var group_id = $(this).attr("data-id");
-					if(action == 'follow'){
-						url = '/{{ site_url_prefix }}group/follow/' + group_id + '/';
-					}
-					else{
-						url = '/{{ site_url_prefix }}group/unfollow/' + group_id + '/';
-					}
-					var button = $(this);
-					request = $.ajax({
-						url: url,
-						type: "GET",
-						success:function(data, text) {
-							button.prop('value', action == "follow" ? 'unfollow' : 'follow');
-							if (action == 'follow')
-								button.find('i').removeClass('fa-square').addClass('fa-check-square');
-							else
-								button.find('i').removeClass('fa-check-square').addClass('fa-square');
-						},
-						error: function (request, status, error) {
-							top_alert('Failed to subscribe, please contact us!', 'danger');
-						}
-					});
-				});
-			{% endif %}
-		})
-	</script>
-	</body>
+            $(".news-link").click(function(event) {
+              var news_id = this.getAttribute('data-id');
+              event.preventDefault();
+              var tmp_li = $(this).parent();
+              if (this.hasAttribute('data-unroll'))
+              {
+                $(this).removeAttr('data-unroll');
+                $('.news-link-unroll').parent().remove();
+              }
+              else if (this.innerHTML.indexOf('â—‹') === -1 && !this.hasAttribute('data-unroll')) {
+                this.setAttribute('data-unroll', true);
+                $.ajax({
+                  url: '/{{ site_url_prefix }}news2/' + news_id + '/'
+                }).done(function (json) {
+                  $("#contents").html("");
+                  list_news_rec(json['children'], tmp_li);
+                  $(".news-link-unroll").click(function(event) {
+                    var news_id = this.getAttribute('data-id');
+                    event.preventDefault();
+                    $.ajax({
+                      url: '/{{ site_url_prefix }}news/' + news_id + '/'
+                    }).done(function (json) {
+                      $("#contents").html("");
+                      $('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
+                      $('<h5>').appendTo('#contents').html(
+                          '<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
+                          '<b>From:</b> ' + json['from'] + '<br>' +
+                          '<b>Date:</b> ' + json['date']
+                      );
+                      $('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
+                    });
+                  });
+                });
+              }
+              $.ajax({
+                url: '/{{ site_url_prefix }}news/' + news_id + '/'
+              }).done(function (json) {
+                $("#contents").html("");
+                $('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
+                $('<h5>').appendTo('#contents').html(
+                    '<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
+                    '<b>From:</b> ' + json['from'] + '<br>' +
+                    '<b>Date:</b> ' + json['date']
+                );
+                $('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
+              });
+            });
+          }
+        });
+      });
+      $("#notify").click(function() {
+        open_modal();
+      });
+      {% if user.is_authenticated %}
+        $(document).on("click", ".follow", function(e) {
+          e.preventDefault();
+          var action = $(this).attr("value");
+          var group_id = $(this).attr("data-id");
+          if(action == 'follow'){
+            url = '/{{ site_url_prefix }}group/follow/' + group_id + '/';
+          }
+          else{
+            url = '/{{ site_url_prefix }}group/unfollow/' + group_id + '/';
+          }
+          var button = $(this);
+          request = $.ajax({
+            url: url,
+            type: "GET",
+            success:function(data, text) {
+              button.prop('value', action == "follow" ? 'unfollow' : 'follow');
+              if (action == 'follow')
+                button.find('i').removeClass('fa-square').addClass('fa-check-square');
+              else
+                button.find('i').removeClass('fa-check-square').addClass('fa-square');
+            },
+            error: function (request, status, error) {
+              top_alert('Failed to subscribe, please contact us!', 'danger');
+            }
+          });
+        });
+      {% endif %}
+    })
+  </script>
+  </body>
 </html>

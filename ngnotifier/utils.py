@@ -3,6 +3,7 @@ import re
 import hashlib
 import nntplib
 from email.header import decode_header, make_header
+from ngnotifier.settings import hosts
 
 
 def get_co(host, port, ssl, user, password, timeout):
@@ -12,9 +13,8 @@ def get_co(host, port, ssl, user, password, timeout):
         else:
             co = nntplib.NNTP(host, port, user, password, timeout=timeout)
     except Exception as err:
-        print("Can't connect to the host {}.".format(host))
-        print("Error: {}".format(err))
-        return None
+        raise ConnectionError('Could not connect to the server, please, check '
+                         'your connection ({}).'.format(err))
     return co
 
 
@@ -178,3 +178,32 @@ def serializable_object(node, put_children=False, tab=0):
         ) if put_children and has_children else []
     }
     return obj
+
+
+def build_article(name, email, groups, subject, contents):
+    res = ''
+    res += 'From: ' + name + ' <' + email + '>' + '\r\n'
+    res += 'Newsgroups: ' + ",".join(groups) + '\r\n'
+    res += 'Subject: ' + subject + '\r\n'
+    res += 'Date: ' + datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
+    res += '\r\n'
+    res += contents + '\r\n'
+    return res.encode('utf-8')
+
+
+def post_article(name, email, groups, subject, contents):
+    for group in groups:
+        settings = hosts[group.host.host]
+        try:
+            if settings['ssl']:
+                co = nntplib.NNTP_SSL(settings['host'], settings['port'],
+                                      settings['user'], settings['pass'],
+                                      timeout=settings['timeout'])
+            else:
+                co = nntplib.NNTP(settings['host'], settings['port'],
+                                  settings['user'], settings['pass'],
+                                  timeout=settings['timeout'])
+        except Exception:
+            return False
+        print(co.post(build_article(name, email, [group.name], subject, contents)))
+        return True

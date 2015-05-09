@@ -1,0 +1,87 @@
+{% extends "base.html" %}
+
+{% block contents %}
+  <div class="bs-docs-section">
+    <div class="row">
+      <div class="col-lg-12">
+        <div class="page-header">
+          <h1 id="forms">Post a news</h1>
+        </div>
+      </div>
+    </div>
+    <form method="post" class="form-horizontal" action="{% url 'post' %}">
+      {% csrf_token %}
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="well bs-component">
+            <fieldset>
+              <legend>Headers</legend>
+              <div class="form-group">
+                <label for="inputEmail" class="col-lg-2 control-label">Groups</label>
+                <div class="col-lg-10">
+                  <select name="groups" multiple="" class="form-control">
+                  {% for host in hosts %}
+                    {% for grp in host.get_ordered_groups %}
+                    <option value="{{ grp.id }}">{{ host.host }}/{{ grp.name }}</option>
+                    {% endfor %}
+                  {% endfor %}
+                  </select>
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputEmail" class="col-lg-2 control-label">Subject</label>
+                <div class="col-lg-10">
+                  <input name="subject" class="form-control" type="text" value="[][]">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputEmail" class="col-lg-2 control-label">Real name</label>
+                <div class="col-lg-10">
+                  <input name="name" class="form-control" type="text">
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="inputEmail" class="col-lg-2 control-label">Email</label>
+                <div class="col-lg-10">
+                  <input name="email" class="form-control" type="text" value="{{ user.email }}">
+                </div>
+              </div>
+              <br>
+            </fieldset>
+          </div>
+        </div>
+        <div class="col-lg-4">
+          <h2>Infos</h2>
+          <p>You can post your news in multiple groups at the same time.</p>
+          <p>All inputs are mandatory.</p>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col-lg-8">
+          <div class="well bs-component">
+            <fieldset>
+              <legend>Message</legend>
+              <div class="form-group">
+                <label for="inputEmail" class="col-lg-2 control-label">Contents</label>
+                <div class="col-lg-10">
+                  <textarea name="contents" class="form-control" rows="15" id="textArea"></textarea>
+                </div>
+              </div>
+            </fieldset>
+            <div id="source-button" class="btn btn-primary btn-xs" style="display: none;">&lt; &gt;</div>
+          </div>
+          <fieldset>
+            <div class="form-group">
+              <div class="col-lg-10 col-lg-offset-4">
+                <button type="reset" class="btn btn-default">Cancel</button>
+                <button type="submit" class="btn btn-primary">Post the news!</button>
+              </div>
+            </div>
+          </fieldset>
+        </div>
+        <div class="col-lg-4">
+        </div>
+      </div>
+    </form>
+  </div>
+{% endblock contents %}

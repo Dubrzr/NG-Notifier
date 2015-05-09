@@ -17,14 +17,14 @@ class UserManager(BaseUserManager):
             raise ValueError('Users must have an email.')
         user = self.model(email=email)
         user.set_password(password)
-        user.save(using=self._db)
+        user.save(using=self.db)
         return user
 
     def create_superuser(self, email, password):
         user = self.create_user(email, password=password)
         user.is_admin = True
         user.is_active = True
-        user.save(using=self._db)
+        user.save(using=self.db)
         return user
 
 
@@ -50,6 +50,10 @@ class User(AbstractBaseUser):
 
     is_active = models.BooleanField(
         default=False)
+
+    def get_groups_followed(self):
+        return [d['followers_set'] for d in
+                User.objects.values('followers_set').filter(id=self.id)]
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -120,14 +124,17 @@ class NGHost(models.Model):
 
     # known_news = models.ManyToManyField(NGNews)
     nb_groups = models.IntegerField(default=0)
-
     def add_news(self, news):
         #self.known_news.add(news)
         self.save()
 
     def get_co(self):
-        return get_co(self.host, self.port, self.ssl,
-                      self.user, self.password, self.timeout)
+        try:
+            return get_co(self.host, self.port, self.ssl,
+                          self.user, self.password, self.timeout)
+        except Exception as err:
+            raise ConnectionError('Could not connect to the server, please '
+                                  'check your connection ({}).'.format(err))
 
     def get_ordered_groups(self):
         all_groups = NGGroup.objects.filter(
@@ -180,19 +187,23 @@ class NGGroup(models.Model):
     name = models.TextField()
     nb_news = models.IntegerField(default=0)
 
-    followers = models.ManyToManyField(User)
+    followers = models.ManyToManyField(User, related_name="followers_set")
 
     def update_news(self, tmp_co=None, verbose=True):
-        tmp_co = tmp_co if tmp_co else self.host.get_co()
+        try:
+            tmp_co = tmp_co if tmp_co else self.host.get_co()
+        except Exception as err:
+            raise ConnectionError('Could not connect to the server, please '
+                                  'check your connection ({}).'.format(err))
         try:
             # Getting infos & data from the given group
             _, _, first, last, _ = tmp_co.group(self.name)
             # Sending a OVER command to get last_nb posts
             _, overviews = tmp_co.over((first, last))
         except Exception as err:
-            print("Can't get news from {} group.".format(self.name))
-            print("Error: {}".format(err))
-            return
+            raise ConnectionError('Could not connect to the server, please '
+                                  'check your connection ({}).'.format(err))
+        already_existing_news = []
         new_news_list = []
         for id, over in overviews:
             hash = hash_over(over)
@@ -205,10 +216,9 @@ class NGGroup(models.Model):
                     )
                     if verbose:
                         print_exists()
+                    # Check if the already existing news is in self group
                     if not self in n.groups.all():
-                        n.groups.add(self)
-                        n.save()
-                        self.nb_news += 1
+                        already_existing_news.append(n)
                 except ObjectDoesNotExist:
                     date = parse_nntp_date(over['date'])
                     _, info = tmp_co.body(over['message-id'])
@@ -230,9 +240,6 @@ class NGGroup(models.Model):
                         new_news.references = over['references']
                         new_news.father = get_father(over['references'])
                         new_news.bytes = over[':bytes']
-                        new_news.save()
-                        new_news.groups.add(self)
-                        new_news.save()
                         new_news_list.append(new_news)
                         if verbose:
                             print_done()
@@ -240,7 +247,14 @@ class NGGroup(models.Model):
                         print_fail(e)
             except Exception as e:
                 print_fail(e)
-        self.nb_news += len(new_news_list)
+        for n in already_existing_news:
+            n.groups.add(self)
+            n.save()
+        for n in new_news_list:
+            n.save()
+            n.groups.add(self)
+            n.save()
+        self.nb_news += len(already_existing_news) + len(new_news_list)
         self.save()
         return new_news_list
 
