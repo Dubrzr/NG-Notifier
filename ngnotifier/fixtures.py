@@ -53,6 +53,7 @@ class UserFixtures():
             except ObjectDoesNotExist:
                 new_user = User()
                 new_user.email = users[user]['mail']
+                new_user.set_password(users[user]['password'])
                 new_user.is_active = True
                 new_user.is_admin = users[user]['admin']
                 new_user.pushbullet_api_key = users[user]['pushbullet_api_key']

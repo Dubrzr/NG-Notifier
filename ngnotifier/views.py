@@ -1,4 +1,4 @@
-import datetime
+from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
 from django.contrib.auth import login as auth_login, authenticate
@@ -17,7 +17,7 @@ from django.contrib.auth import logout
 
 from ngnotifier import settings
 from ngnotifier.forms import CaptchaForm, SettingsForm
-from ngnotifier.models import NGHost, NGGroup, NGNews, User
+from ngnotifier.models import NGHost, NGGroup, NGNews, User, Log
 from ngnotifier.notifs import send_email
 from ngnotifier.utils import serializable_object, post_article
 
@@ -187,6 +187,11 @@ def post(request):
         groups = [NGGroup.objects.get(id=id) for id in groups]
 
         if post_article(name, email, groups, subject, contents):
+            post_log = Log()
+            post_log.type = 'P'
+            post_log.date = datetime.now()
+            post_log.user = request.user
+            post_log.description = subject + ' ' + name
             return render_to_response(
                 'news_posted.html',
                 context_instance=RequestContext(request)

@@ -168,6 +168,8 @@ users = {}  # {
 # 'Me':
 #        {
 #            'mail': 'me@me.me',
+#            'password': '',
+#            'admin': False,
 #            'notifs': {
 #                'pushbullet': True,
 #                'mail': True

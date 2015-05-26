@@ -6,8 +6,7 @@ from django.core.exceptions import ObjectDoesNotExist
 from django.db import models
 
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
-    print_done, print_exists,\
-    print_fail, print_msg, get_father,\
+    print_done, print_exists, print_fail, print_msg, get_father,\
     properly_decode_header, bcolors, get_co
 
 
@@ -54,14 +53,20 @@ class User(AbstractBaseUser):
         default=False
     )
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super().save(*args, **kwargs)
+            new_user_log = Log()
+            new_user_log.type = 'NU'
+            new_user_log.date = datetime.now()
+            new_user_log.user = self
+            new_user_log.save()
+        else:
+            super().save(*args, **kwargs)
+
     def get_groups_followed(self):
         return [d['followers_set'] for d in
                 User.objects.values('followers_set').filter(id=self.id)]
-
-    def save(self, *args, **kwargs):
-        if not self.pk:
-            pass
-        super().save(*args, **kwargs)
 
     @staticmethod
     def __tag__():
@@ -108,25 +113,23 @@ class NGNews(models.Model):
     has_children = models.NullBooleanField(default=None)
     bytes = models.TextField()
 
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super().save(*args, **kwargs)
+            new_news_log = Log()
+            new_news_log.type = 'NN'
+            new_news_log.date = datetime.now()
+            new_news_log.news = self
+            new_news_log.save()
+        else:
+            super().save(*args, **kwargs)
+
+
     def get_children(self):
         return NGNews.objects.filter(father=self.message_id)
 
     def get_groups(self):
         return [c.name for c in self.groups.all()]
-
-
-class Log(models.Model):
-    TYPES = (
-        ('NN', 'New news'),
-        ('N', 'Notification'),
-        ('P', 'Post')
-    )
-    type = models.CharField(choices=TYPES, max_length=2)
-    date = models.DateTimeField()
-    user = models.ForeignKey(User, default=None)
-    news = models.ForeignKey(NGNews, default=None)
-    description = models.TextField(null=True)
-
 
 
 class NGHost(models.Model):
@@ -204,8 +207,18 @@ class NGGroup(models.Model):
     host = models.ForeignKey(NGHost)
     name = models.TextField()
     nb_news = models.IntegerField(default=0)
-
     followers = models.ManyToManyField(User, related_name="followers_set")
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super().save(*args, **kwargs)
+            new_group_log = Log()
+            new_group_log.type = 'NG'
+            new_group_log.date = datetime.now()
+            new_group_log.group = self
+            new_group_log.save()
+        else:
+            super().save(*args, **kwargs)
 
     def update_news(self, tmp_co=None, verbose=True):
         try:
@@ -286,3 +299,19 @@ class NGGroup(models.Model):
 
     def get_followers(self):
         return self.has_followers()
+
+
+class Log(models.Model):
+    TYPES = (
+        ('NU', 'New user'),
+        ('NN', 'New news'),
+        ('NG', 'New group'),
+        ('N', 'Notification'),
+        ('P', 'Post')
+    )
+    type = models.CharField(choices=TYPES, max_length=2, blank=False, default=None)
+    date = models.DateTimeField()
+    user = models.ForeignKey(User, null=True, default=None)
+    news = models.ForeignKey(NGNews, null=True, default=None)
+    group = models.ForeignKey(NGGroup, null=True, default=None)
+    description = models.TextField(null=True)
