@@ -159,8 +159,9 @@ hosts = {
             'user': None,
             'pass': None,
             'ssl': False,
+            'encoding': 'utf-8',
             'timeout': 30,
-            'groups': []  # Empty means get all groups
+            'groups': [],  # Empty means get all groups
         },
 }
 

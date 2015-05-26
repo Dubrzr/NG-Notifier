@@ -180,7 +180,7 @@ def serializable_object(node, put_children=False, tab=0):
     return obj
 
 
-def build_article(name, email, groups, subject, contents):
+def build_article(name, email, groups, subject, contents, encoding):
     res = ''
     res += 'From: ' + name + ' <' + email + '>' + '\r\n'
     res += 'Newsgroups: ' + ",".join(groups) + '\r\n'
@@ -188,7 +188,7 @@ def build_article(name, email, groups, subject, contents):
     res += 'Date: ' + datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
     res += '\r\n'
     res += contents + '\r\n'
-    return res.encode('utf-8')
+    return res.encode(encoding)
 
 
 def post_article(name, email, groups, subject, contents):
@@ -205,5 +205,6 @@ def post_article(name, email, groups, subject, contents):
                                   timeout=settings['timeout'])
         except Exception:
             return False
-        print(co.post(build_article(name, email, [group.name], subject, contents)))
+        print(co.post(build_article(name, email, [group.name],
+                                    subject, contents, settings['encoding'])))
         return True

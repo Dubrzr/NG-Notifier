@@ -192,6 +192,7 @@ def post(request):
             post_log.date = datetime.now()
             post_log.user = request.user
             post_log.description = subject + ' ' + name
+            post_log.save()
             return render_to_response(
                 'news_posted.html',
                 context_instance=RequestContext(request)
