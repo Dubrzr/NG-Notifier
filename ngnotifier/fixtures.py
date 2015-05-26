@@ -54,6 +54,7 @@ class UserFixtures():
                 new_user = User()
                 new_user.email = users[user]['mail']
                 new_user.is_active = True
+                new_user.is_admin = users[user]['admin']
                 new_user.pushbullet_api_key = users[user]['pushbullet_api_key']
                 new_user.send_emails = users[user]['notifs']['mail']
                 new_user.send_pushbullets = users[user]['notifs']['pushbullet']

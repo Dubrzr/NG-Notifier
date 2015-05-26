@@ -54,7 +54,7 @@ INSTALLED_APPS = (
     'django.contrib.staticfiles',
     'ngnotifier',
     'captcha',
-    'djcelery',
+    'apscheduler',
     'rest_framework',
 )
 
@@ -89,8 +89,18 @@ DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.sqlite3',
         'NAME': os.path.join(BASE_DIR, 'db.sqlite3'),
-    }
+    },
+    # 'defaults': {
+    #     'ENGINE': 'django.db.backends.postgresql_psycopg2',
+    #     'NAME': '',
+    #     'USER': '',
+    #     'PASSWORD': '',
+    #     'HOST': 'localhost',
+    #     'PORT': 5432
+    # }
 }
+DATABASE_USE = 'sqlite'
+
 
 # I18N
 LANGUAGE_CODE = 'en-en'
@@ -150,7 +160,7 @@ hosts = {
             'pass': None,
             'ssl': False,
             'timeout': 30,
-            'groups': []  # Means get all groups
+            'groups': []  # Empty means get all groups
         },
 }
 

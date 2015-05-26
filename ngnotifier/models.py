@@ -50,6 +50,9 @@ class User(AbstractBaseUser):
 
     is_active = models.BooleanField(
         default=False)
+    is_admin = models.BooleanField(
+        default=False
+    )
 
     def get_groups_followed(self):
         return [d['followers_set'] for d in
@@ -111,15 +114,30 @@ class NGNews(models.Model):
     def get_groups(self):
         return [c.name for c in self.groups.all()]
 
+
+class Log(models.Model):
+    TYPES = (
+        ('NN', 'New news'),
+        ('N', 'Notification'),
+        ('P', 'Post')
+    )
+    type = models.CharField(choices=TYPES, max_length=2)
+    date = models.DateTimeField()
+    user = models.ForeignKey(User, default=None)
+    news = models.ForeignKey(NGNews, default=None)
+    description = models.TextField(null=True)
+
+
+
 class NGHost(models.Model):
     host = models.TextField(unique=True)
-    port = models.IntegerField(max_length=65535, default=119)
+    port = models.IntegerField(default=119)
     ssl = models.BooleanField(default=False)
 
-    user = models.TextField(null=True, default=None)
-    password = models.TextField(null=True, default=None)
+    user = models.TextField(default=None)
+    password = models.TextField(default=None)
 
-    timeout = models.IntegerField(max_length=120, default=30)
+    timeout = models.IntegerField(default=30)
     nb_notifs_sent = models.IntegerField(default=0)
 
     # known_news = models.ManyToManyField(NGNews)
