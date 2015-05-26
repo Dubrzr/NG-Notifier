@@ -1,6 +1,6 @@
 from django.core.exceptions import ObjectDoesNotExist
 
-from ngnotifier.models import NGHost, NGGroup, User
+from ngnotifier.models import NGHost, NGGroup, User, kinship_updater
 from ngnotifier.utils import print_msg, print_done, print_exists, print_fail
 from ngnotifier.settings import hosts, users
 
@@ -8,12 +8,11 @@ from ngnotifier.settings import hosts, users
 class NGFixtures():
     @staticmethod
     def create_hosts_and_groups():
+        # First add all hosts
         for host in hosts:
             print_msg('host', hosts[host]['host'])
             try:
-                current_host = NGHost.objects.get(
-                    host=hosts[host]['host']
-                )
+                NGHost.objects.get(host=hosts[host]['host'])
                 print_exists()
             except ObjectDoesNotExist:
                 try:
@@ -28,10 +27,19 @@ class NGFixtures():
                     print_done()
                 except Exception as e:
                     print_fail(e)
-                    current_host = None
-            if current_host:
-                current_host.update_groups(hosts[host]['groups'],
-                                           check_kinship=True)
+
+        # Then add all groups
+        for host in NGHost.objects.all():
+            host.update_groups(hosts[host.host]['groups'], verbose=True)
+
+        # Finally add all news
+        for host in NGHost.objects.all():
+            tmp_co = host.get_co()
+            all_groups = NGGroup.objects.filter(host=host)
+            new_news_list = []
+            for group in all_groups:
+                new_news_list += group.update_news(tmp_co, verbose=True)
+            kinship_updater(new_news_list)
 
 
     @staticmethod

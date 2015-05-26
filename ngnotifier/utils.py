@@ -90,9 +90,9 @@ def properly_decode_header(subject):
     return str(contents)
 
 
-def hash_over(over):
+def hash_over(hostname, over):
     try:
-        str = over['subject'] + over['xref'] + over['message-id']
+        str = hostname + over['subject'] + over['xref'] + over['message-id']
     except Exception as err:
         print('Error occured during getting keys of over dictionary.')
         print('Error: {}'.format(err))

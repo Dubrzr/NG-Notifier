@@ -111,7 +111,7 @@ LANGUAGES = (
 
 USE_I18N = False
 USE_L10N = True
-USE_TZ = True
+USE_TZ = False
 
 
 # STATICS

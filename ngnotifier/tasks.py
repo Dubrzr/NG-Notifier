@@ -5,13 +5,13 @@
 # from datetime import timedelta
 # from celery import Celery
 # from django.conf import settings
-# from ngnotifier.fixtures import hosts
-# from ngnotifier.models import NGHost, NGGroup
+
+from ngnotifier.fixtures import hosts
+from ngnotifier.models import NGHost, NGGroup
 #
 # # set the default Django settings module for the 'celery' program.
-# from ngnotifier.notifs import send_notif
-# from ngnotifier.settings import SECONDS_DELTA
-# from ngnotifier.models import kinship_updater
+from ngnotifier.notifs import send_notif
+from ngnotifier.models import kinship_updater
 #
 # app = Celery('ngnotifier')
 #
@@ -47,37 +47,36 @@
 #
 #
 # @app.task
-# def update_news():
-#     m = 0
-#     p = 0
-#     new_news_list_all = []
-#     for ng_host in NGHost.objects.all():
-#         print('Checking {} host:'.format(ng_host.host), flush=False)
-#         ng_groups = NGGroup.objects.filter(host=ng_host)
-#         co = ng_host.get_co()
-#         m_tmp = 0
-#         p_tmp = 0
-#         for ng_group in ng_groups:
-#             new_news_list = ng_group.update_news(co, verbose=False)
-#             m_tmp_grp, p_tmp_grp = send_notif(new_news_list, ng_group)
-#             m_tmp += m_tmp_grp
-#             p_tmp += p_tmp_grp
-#             new_news_list_all += new_news_list
-#         if m_tmp + p_tmp > 0:
-#             ng_host.nb_notifs_sent += m_tmp + p_tmp
-#             ng_host.save()
-#         m += m_tmp
-#         p += p_tmp
-#
-#     kinship_updater(new_news_list_all)
-#
-#     print('\t\tSent {} emails!'.format(m))
-#     print('\t\tSent {} pushs!'.format(p))
-#
-#
-# # Add 24h task to update groups/host
+def update_news(verbose=False):
+    m = 0
+    p = 0
+    new_news_list_all = []
+    for ng_host in NGHost.objects.all():
+        print('Checking {} host:'.format(ng_host.host), flush=False)
+        ng_groups = NGGroup.objects.filter(host=ng_host)
+        co = ng_host.get_co()
+        m_tmp = 0
+        p_tmp = 0
+        for ng_group in ng_groups:
+            new_news_list = ng_group.update_news(co, verbose=verbose)
+            m_tmp_grp, p_tmp_grp = send_notif(new_news_list, ng_group)
+            m_tmp += m_tmp_grp
+            p_tmp += p_tmp_grp
+            new_news_list_all += new_news_list
+        if m_tmp + p_tmp > 0:
+            ng_host.nb_notifs_sent += m_tmp + p_tmp
+            ng_host.save()
+        m += m_tmp
+        p += p_tmp
+
+    kinship_updater(new_news_list_all)
+
+    print('\t\tSent {} emails!'.format(m))
+    print('\t\tSent {} pushs!'.format(p))
+
+
+# Add 24h task to update groups/host
 # @app.task
-# def update_groups():
-#     for ng_host in NGHost.objects.all():
-#         ng_host.update_groups(groups=hosts[ng_host.host]['groups'],
-#                               check_news=False, verbose=False)
+def update_groups(verbose=False):
+    for host in NGHost.objects.all():
+        host.update_groups(groups=hosts[host.host]['groups'], verbose=verbose)

@@ -33,25 +33,19 @@ class User(AbstractBaseUser):
     USERNAME_FIELD = 'email'
     REQUIRED_FIELDS = []
 
-    email = models.EmailField(
-        'email address',
-        max_length=254,
-        unique=True)
-
+    email = models.EmailField('email address', max_length=254, unique=True)
     token = models.TextField()
-
     pushbullet_api_key = models.TextField(null=True)
-
     send_emails = models.BooleanField(default=True)
     send_pushbullets = models.BooleanField(default=False)
+    date_joined = models.DateTimeField(default=datetime.now)
+    is_active = models.BooleanField(default=False)
+    is_admin = models.BooleanField(default=False)
 
-    date_joined = models.DateTimeField(default=datetime.now())
-
-    is_active = models.BooleanField(
-        default=False)
-    is_admin = models.BooleanField(
-        default=False
-    )
+    # FIXME: delete this?
+    # @staticmethod
+    # def __tag__():
+    #     return 'User'
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -68,10 +62,6 @@ class User(AbstractBaseUser):
         return [d['followers_set'] for d in
                 User.objects.values('followers_set').filter(id=self.id)]
 
-    @staticmethod
-    def __tag__():
-        return 'User'
-
     def switch_emails(self):
         self.send_emails = not self.send_emails
         self.save()
@@ -86,9 +76,9 @@ class User(AbstractBaseUser):
         ng_group.save()
 
 
-def kinship_updater(new_news_list):
-    if len(new_news_list) > 0:
-        for news in new_news_list:
+def kinship_updater(news_list):
+    if len(news_list) > 0:
+        for news in news_list:
             if news.father != '':
                 try:
                     father = NGNews.objects.get(message_id=news.father)
@@ -124,87 +114,19 @@ class NGNews(models.Model):
         else:
             super().save(*args, **kwargs)
 
-
     def get_children(self):
         return NGNews.objects.filter(father=self.message_id)
 
     def get_groups(self):
         return [c.name for c in self.groups.all()]
 
-
-class NGHost(models.Model):
-    host = models.TextField(unique=True)
-    port = models.IntegerField(default=119)
-    ssl = models.BooleanField(default=False)
-
-    user = models.TextField(default=None)
-    password = models.TextField(default=None)
-
-    timeout = models.IntegerField(default=30)
-    nb_notifs_sent = models.IntegerField(default=0)
-
-    # known_news = models.ManyToManyField(NGNews)
-    nb_groups = models.IntegerField(default=0)
-    def add_news(self, news):
-        #self.known_news.add(news)
+    def add_group(self, group):
+        self.groups.add(group)
         self.save()
-
-    def get_co(self):
-        try:
-            return get_co(self.host, self.port, self.ssl,
-                          self.user, self.password, self.timeout)
-        except Exception as err:
-            raise ConnectionError('Could not connect to the server, please '
-                                  'check your connection ({}).'.format(err))
-
-    def get_ordered_groups(self):
-        all_groups = NGGroup.objects.filter(
-            host=self
-        ).order_by('name')
-        result_list = list(chain(all_groups.filter(nb_news__gt=0),
-                                 all_groups.filter(nb_news=0)))
-        return result_list
-
-    def update_groups(self, groups=None, check_news=True, check_kinship=False,
-                      verbose=True):
-        tmp_co = self.get_co()
-        if groups is None or len(groups) == 0:
-            _, list = tmp_co.list()
-            list = [x.group for x in list]
-        else:
-            list = groups
-        new_news_list = []
-        for group in list:
-            if verbose:
-                print_msg('group', group)
-            try:
-                ng_group = NGGroup.objects.get(
-                    host=self,
-                    name=group
-                )
-                if verbose:
-                    print_exists()
-            except ObjectDoesNotExist:
-                try:
-                    ng_group = NGGroup()
-                    ng_group.host = self
-                    ng_group.name = group
-                    ng_group.save()
-                    self.nb_groups += 1
-                    self.save()
-                    if verbose:
-                        print_done()
-                except Exception as e:
-                    ng_group = None
-                    print_fail(e)
-            if check_news and ng_group:
-                new_news_list += ng_group.update_news(tmp_co, verbose=verbose)
-        if check_kinship:
-            kinship_updater(new_news_list)
 
 
 class NGGroup(models.Model):
-    host = models.ForeignKey(NGHost)
+    host = models.ForeignKey('NGHost')
     name = models.TextField()
     nb_news = models.IntegerField(default=0)
     followers = models.ManyToManyField(User, related_name="followers_set")
@@ -220,7 +142,7 @@ class NGGroup(models.Model):
         else:
             super().save(*args, **kwargs)
 
-    def update_news(self, tmp_co=None, verbose=True):
+    def update_news(self, tmp_co=None, verbose=False):
         try:
             tmp_co = tmp_co if tmp_co else self.host.get_co()
         except Exception as err:
@@ -237,41 +159,37 @@ class NGGroup(models.Model):
         already_existing_news = []
         new_news_list = []
         for id, over in overviews:
-            hash = hash_over(over)
+            hash = hash_over(self.host.host, over)
             try:
                 if verbose:
                     print_msg('news', properly_decode_header(over['subject']))
                 try:
-                    n = NGNews.objects.get(
-                        hash=hash
-                    )
+                    n = NGNews.objects.get(hash=hash)
                     if verbose:
                         print_exists()
                     # Check if the already existing news is in self group
-                    if not self in n.groups.all():
+                    if self not in n.groups.all():
                         already_existing_news.append(n)
                 except ObjectDoesNotExist:
                     date = parse_nntp_date(over['date'])
                     _, info = tmp_co.body(over['message-id'])
-                    result = ''
+                    contents = ''
                     for line in info[2]:
-                        result += get_decoded(line) + '\n'
+                        contents += get_decoded(line) + '\n'
                     try:
-                        new_news = NGNews()
-                        new_news.hash = hash
-                        new_news.subject = properly_decode_header(over[
-                            'subject'])
-                        new_news.contents = result
-                        new_news.email_from = properly_decode_header(
-                            over['from'])
-                        new_news.message_id = over['message-id']
-                        new_news.date = date
-                        new_news.lines = over[':lines']
-                        new_news.xref = over['xref']
-                        new_news.references = over['references']
-                        new_news.father = get_father(over['references'])
-                        new_news.bytes = over[':bytes']
-                        new_news_list.append(new_news)
+                        nn = NGNews()
+                        nn.hash = hash
+                        nn.subject = properly_decode_header(over['subject'])
+                        nn.contents = contents
+                        nn.email_from = properly_decode_header(over['from'])
+                        nn.message_id = over['message-id']
+                        nn.date = date
+                        nn.lines = over[':lines']
+                        nn.xref = over['xref']
+                        nn.references = over['references']
+                        nn.father = get_father(over['references'])
+                        nn.bytes = over[':bytes']
+                        new_news_list.append(nn)
                         if verbose:
                             print_done()
                     except Exception as e:
@@ -279,8 +197,7 @@ class NGGroup(models.Model):
             except Exception as e:
                 print_fail(e)
         for n in already_existing_news:
-            n.groups.add(self)
-            n.save()
+            n.add_group(self)
         for n in new_news_list:
             n.save()
             n.groups.add(self)
@@ -299,6 +216,69 @@ class NGGroup(models.Model):
 
     def get_followers(self):
         return self.has_followers()
+
+
+class NGHost(models.Model):
+    host = models.TextField(unique=True)
+    port = models.IntegerField(default=119)
+    ssl = models.BooleanField(default=False)
+    user = models.CharField(max_length=200, null=True)
+    password = models.CharField(max_length=200, null=True)
+    timeout = models.IntegerField(default=30)
+    nb_notifs_sent = models.IntegerField(default=0)
+    nb_groups = models.IntegerField(default=0)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            super().save(*args, **kwargs)
+        else:
+            super().save(*args, **kwargs)
+
+    def get_co(self):
+        try:
+            return get_co(self.host, self.port, self.ssl,
+                          self.user, self.password, self.timeout)
+        except Exception as err:
+            raise ConnectionError('Could not connect to the server, please '
+                                  'check your connection ({}).'.format(err))
+
+    def get_ordered_groups(self):
+        all_groups = NGGroup.objects.filter(
+            host=self
+        ).order_by('name')
+        result_list = list(chain(all_groups.filter(nb_news__gt=0),
+                                 all_groups.filter(nb_news=0)))
+        return result_list
+
+    def update_groups(self, groups=None, verbose=False):
+        tmp_co = self.get_co()
+        if groups is None or len(groups) == 0:
+            _, grp_list = tmp_co.list()
+            grp_list = [x.group for x in grp_list]
+        else:
+            grp_list = groups
+        for group in grp_list:
+            if verbose:
+                print_msg('group', group)
+            try:
+                NGGroup.objects.get(
+                    host=self,
+                    name=group
+                )
+                if verbose:
+                    print_exists()
+            except ObjectDoesNotExist:
+                try:
+                    ng_group = NGGroup()
+                    ng_group.host = self
+                    ng_group.name = group
+                    ng_group.save()
+                    self.nb_groups += 1
+                    self.save()
+                    if verbose:
+                        print_done()
+                except Exception as e:
+                    print_fail(e)
 
 
 class Log(models.Model):
