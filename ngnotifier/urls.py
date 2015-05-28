@@ -11,6 +11,11 @@ admin.autodiscover()
 api_urlpatterns = patterns(
     '',
     url(r'^$', api_views.host_list, name='host_list'),
+    url(r'^search$', api_views.search, name='search'),
+    url(r'^(?P<host>.+)/search$', api_views.search, name='search'),
+    url(r'^(?P<host>.+)/search$', api_views.search, name='search_host'),
+    url(r'^(?P<host>.+)/(?P<group>.+)/search$', api_views.search,
+        name='search_group'),
     url(r'^(?P<host>.+)/(?P<group>.+)/refresh/$', api_views.news_list_refresh,
         name='news_list_refresh'),
     url(r'^(?P<host>.+)/(?P<group>.+)/(?P<news_id>.+)/$', api_views.news_detail,
