@@ -4,7 +4,7 @@ from ngnotifier.models import NGHost, NGGroup
 from ngnotifier.notifs import send_notif
 from ngnotifier.models import kinship_updater
 
-def update_news(verbose=False, notif=False):
+def update_news(verbose=False, notif=True):
     m = 0
     p = 0
     for host in NGHost.objects.all():

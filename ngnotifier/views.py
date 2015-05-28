@@ -46,6 +46,10 @@ def hosts(request):
                     context,
                     context_instance=RequestContext(request)
                 )
+        return render_to_response(
+            'fail_subscribe_form.html',
+            context_instance=RequestContext(request)
+        )
     form = CaptchaForm()
     hosts = NGHost.objects.all()
     context = {
@@ -222,7 +226,10 @@ def login_user(request):
                 request.session.set_expiry(2592000)
                 return HttpResponseRedirect(
                     reverse('ngnotifier.views.edit_settings'))
-    return HttpResponseRedirect(reverse('ngnotifier.views.hosts'))
+    return render_to_response(
+        'fail_login_form.html',
+        context_instance=RequestContext(request)
+    )
 
 
 # API
