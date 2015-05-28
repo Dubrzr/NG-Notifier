@@ -20,7 +20,7 @@ class NGHostSerializer(serializers.HyperlinkedModelSerializer):
 class NGGroupSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(source='pk')
     group_name = serializers.ReadOnlyField(source='name')
-    topic_nb = serializers.ReadOnlyField(source='nb_news')
+    topic_nb = serializers.ReadOnlyField(source='nb_topics')
 
     class Meta:
         model = NGGroup
@@ -31,15 +31,14 @@ class NGNewsSerializer(serializers.HyperlinkedModelSerializer):
     id = serializers.ReadOnlyField(source='pk')
     author = serializers.ReadOnlyField(source='email_from')
     subject = serializers.ReadOnlyField()
-    content = serializers.ReadOnlyField(source='contents')
     creation_date = serializers.DateTimeField(source='date',
                                               format='%Y-%m-%dT%H:%M:%S%z')
+    msg_nb = serializers.ReadOnlyField(source='nb_answers')
     groups = serializers.PrimaryKeyRelatedField(many=True, read_only=True)
 
     class Meta:
         model = NGNews
-        fields = ('id', 'author', 'subject', 'content',
-                  'creation_date', 'groups')
+        fields = ('id', 'author', 'subject', 'creation_date', 'msg_nb', 'groups')
 
 
 class NGNewsDetailSerializer(serializers.BaseSerializer):

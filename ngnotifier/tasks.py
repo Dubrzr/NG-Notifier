@@ -1,82 +1,41 @@
-# from __future__ import absolute_import
-# import os
-#
-# os.environ['DJANGO_SETTINGS_MODULE'] = 'ngnotifier.settings'
-# from datetime import timedelta
-# from celery import Celery
-# from django.conf import settings
-
 from ngnotifier.fixtures import hosts
 from ngnotifier.models import NGHost, NGGroup
-#
-# # set the default Django settings module for the 'celery' program.
+
 from ngnotifier.notifs import send_notif
 from ngnotifier.models import kinship_updater
-#
-# app = Celery('ngnotifier')
-#
-# # Using a string here means the worker will not have to
-# # pickle the object when using Windows.
-# app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
-# # app.config_from_object(CeleryConfig)
-#
-# app.conf.update(
-#     # Broker settings.
-#     BROKER_URL='sqla+sqlite:///db.sqlite3',
-#
-#
-#     # CELERY_RESULT_BACKEND='db+sqlite:///results.db',
-#
-#     CELERY_TASK_SERIALIZER='json',
-#     CELERY_ACCEPT_CONTENT=['json'],
-#     CELERY_RESULT_SERIALIZER='json',
-#     CELERY_TIMEZONE='Europe/Paris',
-#     CELERY_ENABLE_UTC=True,
-#
-#     CELERYBEAT_SCHEDULE={
-#         'every-minute': {
-#             'task': 'ngnotifier.tasks.update_news',
-#             'schedule': timedelta(seconds=SECONDS_DELTA),
-#         },
-#         'every-day': {
-#             'task': 'ngnotifier.tasks.update_groups',
-#             'schedule': timedelta(seconds=86400),
-#         },
-#     }
-# )
-#
-#
-# @app.task
-def update_news(verbose=False):
+
+def update_news(verbose=False, notif=False):
     m = 0
     p = 0
-    new_news_list_all = []
-    for ng_host in NGHost.objects.all():
-        print('Checking {} host:'.format(ng_host.host), flush=False)
-        ng_groups = NGGroup.objects.filter(host=ng_host)
-        co = ng_host.get_co()
+    for host in NGHost.objects.all():
+        # if verbose:
+            # print('Checking {} host:'.format(host.host), flush=False)
+        groups = NGGroup.objects.filter(host=host)
+        tmp_co = host.get_co()
         m_tmp = 0
         p_tmp = 0
-        for ng_group in ng_groups:
-            new_news_list = ng_group.update_news(co, verbose=verbose)
-            m_tmp_grp, p_tmp_grp = send_notif(new_news_list, ng_group)
-            m_tmp += m_tmp_grp
-            p_tmp += p_tmp_grp
+        new_news_list_all = []
+        for group in groups:
+            new_news_list = group.update_news(tmp_co, verbose=verbose)
             new_news_list_all += new_news_list
-        if m_tmp + p_tmp > 0:
-            ng_host.nb_notifs_sent += m_tmp + p_tmp
-            ng_host.save()
-        m += m_tmp
-        p += p_tmp
+            if notif:
+                m_tmp_grp, p_tmp_grp = send_notif(new_news_list, group)
+                m_tmp += m_tmp_grp
+                p_tmp += p_tmp_grp
+                if m_tmp + p_tmp > 0:
+                    host.nb_notifs_sent += m_tmp + p_tmp
+                    host.save()
+                m += m_tmp
+                p += p_tmp
 
-    kinship_updater(new_news_list_all)
+        kinship_updater(new_news_list_all)
+        for nn in new_news_list_all:
+            nn.add_answer_count()
+    if verbose and notif:
+        print('\t\tSent {} emails!'.format(m))
+        print('\t\tSent {} pushs!'.format(p))
 
-    print('\t\tSent {} emails!'.format(m))
-    print('\t\tSent {} pushs!'.format(p))
 
-
-# Add 24h task to update groups/host
-# @app.task
 def update_groups(verbose=False):
     for host in NGHost.objects.all():
         host.update_groups(groups=hosts[host.host]['groups'], verbose=verbose)

@@ -147,7 +147,8 @@ mail_conf = {
 
 # **** CELERY CONFIG **** #
 
-SECONDS_DELTA = 60  # Time delta between two checks
+SECONDS_DELTA_NEWS = 60  # Time delta between two checks for new news
+SECONDS_DELTA_GROUP = 24*60*60  # Time delta between two checks for new groups
 
 # **** HOSTS CONFIG **** #
 

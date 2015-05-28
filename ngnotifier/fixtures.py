@@ -7,8 +7,7 @@ from ngnotifier.settings import hosts, users
 
 class NGFixtures():
     @staticmethod
-    def create_hosts_and_groups():
-        # First add all hosts
+    def create_hosts():
         for host in hosts:
             print_msg('host', hosts[host]['host'])
             try:
@@ -28,18 +27,11 @@ class NGFixtures():
                 except Exception as e:
                     print_fail(e)
 
-        # Then add all groups
+
+    @staticmethod
+    def create_groups():
         for host in NGHost.objects.all():
             host.update_groups(hosts[host.host]['groups'], verbose=True)
-
-        # Finally add all news
-        for host in NGHost.objects.all():
-            tmp_co = host.get_co()
-            all_groups = NGGroup.objects.filter(host=host)
-            new_news_list = []
-            for group in all_groups:
-                new_news_list += group.update_news(tmp_co, verbose=True)
-            kinship_updater(new_news_list)
 
 
     @staticmethod

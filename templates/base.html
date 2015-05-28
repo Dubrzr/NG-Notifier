@@ -143,10 +143,6 @@
             </ul>
         {% else %}
           <form class="navbar-form navbar-left" role="search" action="javascript:open_modal();">
-            {% csrf_token %}
-            <div class="form-group">
-              <input id="email" type="text" class="form-control" placeholder="Email">
-            </div>
             <button id="notify" type="button" class="btn btn-primary">
               <b>Subscribe!</b>
             </button>
@@ -181,7 +177,6 @@
             <div class="modal-body">
               {% csrf_token %}
               {{ form }}
-              <h3>Note: After submission, if you are redirected to the home page, you failed the Captcha!</h3>
             </div>
             <div class="modal-footer">
               <button type="submit" class="btn btn-success">Submit</button>
@@ -213,7 +208,7 @@
               </div>
             </div>
             <div class="modal-footer">
-              <button type="submit" class="btn btn-success">Submit</button>
+              <button type="submit" class="btn btn-success">Connect</button>
               <button type="button" class="btn btn-default" data-dismiss="modal">Close</button>
             </div>
           </form>
@@ -230,7 +225,7 @@
           </ul>
           <p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
           <p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
-          <p>Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a> made by <a href="http://www.kevinsztern.fr/" target="_blank">Kevin Sztern</a>.</p>
+          <i><p style="font-size:10px">Based on <a target="_blank" href="http://bootswatch.com" rel="nofollow">Bootswatch</a> & Inspired by <a href="http://news.deliciousmuffins.net/" target="_blank">news.deliciousmuffins.net</a>.</p></i>
 
         </div>
       </div>
@@ -273,25 +268,19 @@
     }
 
     function open_modal() {
-      var email = document.getElementById('email');
-      if (!validateEmail(email.value))
-        email.style.borderColor = "#5c2040";
-      else
-      {
-        $("#myModal").modal("show");
-        $('#id_email').val(email.value);
-        $('#js-captcha-refresh').click(function(){
-          $form = $(this).parents('form');
-          var url_img = $(".captcha").attr('src');
-          $.ajax({
-            url: url_img
-          }).done(function (json) {
-            $(".captcha").attr("src", url_img +'?' + new Date().getTime());
-          });
-
-          return false;
+      $("#myModal").modal("show");
+      $('#id_email').val(email.value);
+      $('#js-captcha-refresh').click(function(){
+        $form = $(this).parents('form');
+        var url_img = $(".captcha").attr('src');
+        $.ajax({
+          url: url_img
+        }).done(function (jsonjson) {
+          $(".captcha").attr("src", url_img +'?' + new Date().getTime());
         });
-      }
+
+        return false;
+      });
     }
 
     $("#login_modal").click(function() {

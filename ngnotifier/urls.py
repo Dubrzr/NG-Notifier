@@ -18,7 +18,6 @@ api_urlpatterns = patterns(
     url(r'^(?P<host>.+)/(?P<group>.+)/$', api_views.news_list,
         name='news_list'),
     url(r'^(?P<host>.+)/$', api_views.group_list, name='group_list'),
-
 )
 
 base_urlpatterns = patterns(

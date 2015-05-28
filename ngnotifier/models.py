@@ -42,11 +42,6 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
 
-    # FIXME: delete this?
-    # @staticmethod
-    # def __tag__():
-    #     return 'User'
-
     def save(self, *args, **kwargs):
         if not self.pk:
             super().save(*args, **kwargs)
@@ -102,6 +97,7 @@ class NGNews(models.Model):
     father = models.TextField()
     has_children = models.NullBooleanField(default=None)
     bytes = models.TextField()
+    nb_answers = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -124,11 +120,20 @@ class NGNews(models.Model):
         self.groups.add(group)
         self.save()
 
+    # Be careful to call this only once!
+    def add_answer_count(self):
+        if self.father != '':
+            father = NGNews.objects.get(message_id=self.father)
+            father.add_answer_count()
+        self.nb_answers += 1
+        self.save()
+
 
 class NGGroup(models.Model):
     host = models.ForeignKey('NGHost')
     name = models.TextField()
     nb_news = models.IntegerField(default=0)
+    nb_topics = models.IntegerField(default=0)
     followers = models.ManyToManyField(User, related_name="followers_set")
 
     def save(self, *args, **kwargs):
@@ -150,7 +155,7 @@ class NGGroup(models.Model):
                                   'check your connection ({}).'.format(err))
         try:
             # Getting infos & data from the given group
-            _, _, first, last, _ = tmp_co.group(self.name)
+            _, _ , first, last, _ = tmp_co.group(self.name)
             # Sending a OVER command to get last_nb posts
             _, overviews = tmp_co.over((first, last))
         except Exception as err:
@@ -158,6 +163,7 @@ class NGGroup(models.Model):
                                   'check your connection ({}).'.format(err))
         already_existing_news = []
         new_news_list = []
+        nb_new_topics = 0
         for id, over in overviews:
             hash = hash_over(self.host.host, over)
             try:
@@ -170,6 +176,8 @@ class NGGroup(models.Model):
                     # Check if the already existing news is in self group
                     if self not in n.groups.all():
                         already_existing_news.append(n)
+                        if n.father == '':
+                            nb_new_topics += 1
                 except ObjectDoesNotExist:
                     date = parse_nntp_date(over['date'])
                     _, info = tmp_co.body(over['message-id'])
@@ -190,6 +198,8 @@ class NGGroup(models.Model):
                         nn.father = get_father(over['references'])
                         nn.bytes = over[':bytes']
                         new_news_list.append(nn)
+                        if nn.father == '':
+                            nb_new_topics += 1
                         if verbose:
                             print_done()
                     except Exception as e:
@@ -203,6 +213,7 @@ class NGGroup(models.Model):
             n.groups.add(self)
             n.save()
         self.nb_news += len(already_existing_news) + len(new_news_list)
+        self.nb_topics += nb_new_topics
         self.save()
         return new_news_list
 

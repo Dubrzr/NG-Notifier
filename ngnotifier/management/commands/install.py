@@ -7,6 +7,7 @@ from django.conf import settings
 
 from ngnotifier.fixtures import NGFixtures, UserFixtures
 from ngnotifier.utils import bcolors
+from ngnotifier.tasks import update_news
 
 class Command(BaseCommand):
     help = 'Installs the app: checks requirements, creates DB, '\
@@ -63,7 +64,9 @@ class Command(BaseCommand):
                           bcolors.ENDC)
         self.stdout.write('-------------------->>')
         fixtures = NGFixtures()
-        fixtures.create_hosts_and_groups()
+        fixtures.create_hosts()
+        fixtures.create_groups()
+        update_news(True, False)
         fixtures = UserFixtures()
         fixtures.create_users()
         self.stdout.write('-------------------->> ' +
