@@ -8,7 +8,7 @@
       <div class="leftcol col-lg-3 well bs-component">
         <fieldset>
           <div class="form-group">
-            <input class="form-control input-sm" type="text" id="inputSmall" placeholder="Search a news, a word, ... (Available soon!)">
+            <input class="form-control input-sm" type="text" id="input_search" placeholder="Search a news, a word, ...">
           </div>
         </fieldset>
         {% with user.get_groups_followed as followed_groups %}
@@ -48,3 +48,51 @@
     </div>
   </div>
 {% endblock contents %}
+{% block scripts %}
+  <script>
+    function show_result(str) {
+      var contents = $("#news-list");
+      contents.css("overflow","auto");
+      contents.html("");
+      if (str.length < 2)
+        return;
+      $.ajax({
+        url: "{% url 'search' %}?term=" + str + '&web_render'
+      }).done(function (json) {
+        contents.html("");
+        if (jQuery.isEmptyObject(json))
+          contents.html('<h3 style="text-align: center">Nothing is matching ' + str + '.</h3>');
+        else {
+          var ul = $('<ul>').appendTo('#news-list');
+          ul.css("list-style-type", "none");
+          ul.css("margin-left", "-30px");
+          $.each(json, function (key, value) {
+            ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
+          });
+
+          $(".news-link").click(function(event) {
+            var news_id = this.getAttribute('data-id');
+            event.preventDefault();
+            $.ajax({
+              url: '/{{ site_url_prefix }}news/' + news_id + '/'
+            }).done(function (json) {
+              $("#contents").html("");
+              $('<h4>').appendTo('#contents').html('<b>' + json['subject'] + '</b> ');
+              $('<h5>').appendTo('#contents').html(
+                      '<b>Posted in:</b> ' + json['posted-in'] + '<br>' +
+                      '<b>From:</b> ' + json['from'] + '<br>' +
+                      '<b>Date:</b> ' + json['date']
+              );
+              $('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
+            });
+          });
+        }});
+    }
+
+    $("#input_search").keyup(function(event) {
+      show_result($(this).val());
+      event.preventDefault();
+    });
+
+  </script>
+{% endblock scripts %}

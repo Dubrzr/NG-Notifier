@@ -294,7 +294,7 @@
         //contents.html("");
         contents.css("overflow","auto");
         event.preventDefault();
-        var count = 0;
+{#        var count = 0;#}
         $.ajax({
           url: '/{{ site_url_prefix }}group2/' + group_id + '/'
         }).done(function(json) {
@@ -308,8 +308,8 @@
             $.each(json, function (key, value) {
               ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
             });
-            if (count > 9)
-              contents.css("overflow", "scroll");
+{#            if (count > 9)#}
+{#              contents.css("overflow", "scroll");#}
 
             $(".news-link").click(function(event) {
               var news_id = this.getAttribute('data-id');
@@ -394,5 +394,6 @@
       {% endif %}
     })
   </script>
+  {% block scripts %}{% endblock scripts %}
   </body>
 </html>

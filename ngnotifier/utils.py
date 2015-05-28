@@ -160,7 +160,7 @@ def ng_news_has_children(ng_news):
     return ng_news.has_children
 
 
-def serializable_object(node, put_children=False, tab=0):
+def serializable_object(node, put_children=False, light=False, tab=0):
     has_children = ng_news_has_children(node)
     obj = {
         'id': node.id,
@@ -169,10 +169,10 @@ def serializable_object(node, put_children=False, tab=0):
         'display-name': node.date.strftime('<b>%d-%m-%y %H:%M</b> | ')
                         + ('&nbsp;' * 8 * (tab - 1) if tab > 1 else '')
                         + ('^---' if tab > 0 else '')
-                        + ('● ' if has_children > 0 else '○ ') + node.subject
+                        + ('' if light else ('● ' if has_children > 0 else '○ ')) + node.subject
                         + ' <b>' + node.email_from + '</b>',
         'children': sorted(
-            [serializable_object(c, put_children, tab + 1) for c in node.get_children()],
+            [serializable_object(c, put_children, light, tab + 1) for c in node.get_children()],
             key=lambda x: x['date'],
             reverse=True
         ) if put_children and has_children else []

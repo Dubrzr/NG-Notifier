@@ -1,9 +1,10 @@
 from datetime import datetime
 
 from django.views.decorators.cache import never_cache
-from django.http import HttpResponse
+from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from ngnotifier.utils import serializable_object
 from rest_framework.decorators import api_view
 
 from ngnotifier.models import NGHost, NGGroup, NGNews
@@ -194,9 +195,9 @@ def search(request, host=None, group=None):
     else:
         s_date = datetime(1970, 1, 1, 00, 00)
 
-    author = bool(request.GET.get('author', False))
-    title = bool(request.GET.get('title', False))
-    message = bool(request.GET.get('message', False))
+    author = request.GET.get('author', False) != False
+    title = request.GET.get('title', False) != False
+    message = request.GET.get('message', False) != False
 
     if not (author or title or message):
         author = True
@@ -229,4 +230,10 @@ def search(request, host=None, group=None):
     n_list.sort(key=lambda x: x.date, reverse=True)
 
     serializer = NGNewsSerializer(n_list, many=True)
-    return JSONResponse(serializer.data)
+
+    web_render = request.GET.get('web_render', False) != False
+    if web_render:
+        data = [serializable_object(n, light=True) for n in n_list]
+        return JsonResponse(data, safe=False)
+    else:
+        return JSONResponse(serializer.data)
