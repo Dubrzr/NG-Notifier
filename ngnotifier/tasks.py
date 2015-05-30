@@ -22,11 +22,11 @@ def update_news(verbose=False, notif=True):
                 m_tmp_grp, p_tmp_grp = send_notif(new_news_list, group)
                 m_tmp += m_tmp_grp
                 p_tmp += p_tmp_grp
-                if m_tmp + p_tmp > 0:
-                    host.nb_notifs_sent += m_tmp + p_tmp
-                    host.save()
-                m += m_tmp
-                p += p_tmp
+            if m_tmp + p_tmp > 0:
+                host.nb_notifs_sent += m_tmp + p_tmp
+                host.save()
+            m += m_tmp
+            p += p_tmp
 
         kinship_updater(new_news_list_all)
         for nn in new_news_list_all:
