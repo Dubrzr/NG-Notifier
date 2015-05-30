@@ -24,8 +24,6 @@ class Command(BaseCommand):
               + str(SECONDS_DELTA_NEWS) + ' seconds.' + bcolors.ENDC)
 
 
-        if not query_yes_no('Start tasks?'):
-            exit()
 
         # **** REQUIREMENTS **** #
         self.stdout.write(bcolors.WARNING +
