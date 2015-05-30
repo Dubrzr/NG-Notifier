@@ -117,13 +117,13 @@ def news_list_refresh(request, host, group):
         try:
             e_date = datetime.strptime(end_date, '%Y-%m-%dT%H:%M:%S%z')
             e_date = e_date.replace(tzinfo=None)
-        except ValueError:
+        except ValueError as e:
             return HttpResponse(status=400)
     else:
         e_date = datetime(1970, 1, 1, 00, 00)
 
     limit = request.GET.get('limit', '1000')
-    if limit != '' or not limit.isdigit():
+    if limit == '' or not limit.isdigit():
         return HttpResponse(status=400)
     limit = int(limit)
     if not limit > 0:
@@ -165,8 +165,6 @@ def news_detail(request, host, group, news_id):
         return HttpResponse(status=400)
 
     serializer = NGNewsDetailSerializer(news)
-    print(serializer.to_representation(news))
-    print(serializer.data)
     return JSONResponse(serializer.to_representation(news))
 
 @never_cache
