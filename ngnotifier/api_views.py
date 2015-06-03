@@ -221,9 +221,10 @@ def search(request, host=None, group=None):
         groups = NGGroup.objects.all()
 
 
-    case = request.GET.get('author', 'false')
-    case = True if case == '' else (True if case == 'true' else False)
+    case = request.GET.get('case', 'false')
+    case = True if (case == '') else (True if case == 'true' else False)
 
+    print(str(case))
     n_list = []
     if author:
         if case:
