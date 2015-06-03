@@ -145,24 +145,24 @@ def news_list_refresh(request, host, group):
 @never_cache
 @csrf_exempt
 @api_view(['GET'])
-def news_detail(request, host, group, news_id):
+def news_detail(request, news_id):
     """
     Retrieve a news details with all answers
     """
-    try:
-        host = NGHost.objects.get(host=host)
-    except NGHost.DoesNotExist:
-        return HttpResponse(status=400)
-
-    try:
-        group = NGGroup.objects.get(host=host, name=group)
-    except NGGroup.DoesNotExist:
-        return HttpResponse(status=400)
-
-    try:
-        news = NGNews.objects.get(groups__in=[group], id=news_id)
-    except NGGroup.DoesNotExist:
-        return HttpResponse(status=400)
+    news = None
+    while True:
+        try:
+            news = NGNews.objects.get(id=news_id)
+        except NGGroup.DoesNotExist:
+            return HttpResponse(status=400)
+        if news.father == '':
+            break
+        else:
+            try:
+                father = NGNews.objects.get(message_id=news.father)
+                news_id = father.id
+            except:
+                return HttpResponse(status=500)
 
     serializer = NGNewsDetailSerializer(news)
     return JSONResponse(serializer.to_representation(news))
@@ -220,18 +220,34 @@ def search(request, host=None, group=None):
     else:
         groups = NGGroup.objects.all()
 
+
+    case = request.GET.get('author', 'false')
+    case = True if case == '' else (True if case == 'true' else False)
+
     n_list = []
     if author:
-        a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
-                                       email_from__regex=r'^.*' + term + '.*$')
+        if case:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                           email_from__regex=r'^.*' + term + '.*$')
+        else:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                           email_from__iregex=r'^.*' + term + '.*$')
         n_list = list(set(n_list) | set(a_list))
     if title:
-        a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
-                                       subject__regex=r'^.*' + term + '.*$')
+        if case:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                            subject__regex=r'^.*' + term + '.*$')
+        else:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                           subject__iregex=r'^.*' + term + '.*$')
         n_list = list(set(n_list) | set(a_list))
     if message:
-        a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
-                                       contents__regex=r'^.*' + term + '.*$')
+        if case:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                           contents__regex=r'^.*' + term + '.*$')
+        else:
+            a_list = NGNews.objects.filter(groups__in=groups, date__lt=s_date,
+                                           contents__iregex=r'^.*' + term + '.*$')
         n_list = list(set(n_list) | set(a_list))
 
     n_list.sort(key=lambda x: x.date, reverse=True)
