@@ -1,4 +1,6 @@
+from _sha256 import sha224
 from datetime import datetime
+from uuid import uuid4
 
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
@@ -7,10 +9,11 @@ from django.views.decorators.http import require_http_methods
 from ngnotifier.utils import serializable_object
 from rest_framework.decorators import api_view
 
-from ngnotifier.models import NGHost, NGGroup, NGNews
+from ngnotifier.models import NGHost, NGGroup, NGNews, User
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer, NGNewsDetailSerializer
 from ngnotifier.views import JSONResponse
+from ngnotifier.settings import API_KEY
 
 
 @never_cache
@@ -263,3 +266,49 @@ def search(request, host=None, group=None):
         return JsonResponse(data, safe=False)
     else:
         return JSONResponse(serializer.data)
+
+
+@api_view(['GET'])
+def login_phone(request):
+    if API_KEY == '':
+        return HttpResponse(status=500)
+
+    api_key = request.GET.get('key', '')
+    login = request.GET.get('login', '')
+    password = request.GET.get('password', '')
+
+    if api_key == '' or login == '' or password == '':
+        return HttpResponse(status=404)
+
+    if api_key != API_KEY:
+        return HttpResponse(status=404)
+
+    try:
+        user = User.objects.get(email=login)
+    except:
+        return HttpResponse(status=404)
+
+    if not user.is_active:
+        return JsonResponse({'error': 2, 'message': "You must first confirm your account"}, safe=False, status=403)
+
+    if not user.check_password(password):
+        return JsonResponse({'error': 1, 'message': "This account does not exist / specified password is incorrect"}, safe=False, status=403)
+
+    token = sha224(uuid4().hex.encode('utf-8')).hexdigest()
+    user.token_phone = token
+    user.save()
+
+
+    data = {
+        'error': 0,
+        'token': token,
+        'notifs': {
+            'email': user.send_emails,
+            'pushbullet': user.send_pushbullets,
+            'pushbullet_api_key': user.pushbullet_api_key,
+            'devices': []
+        }
+    }
+
+    return JsonResponse(data, safe=False)
+

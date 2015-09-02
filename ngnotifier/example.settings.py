@@ -26,6 +26,7 @@ SITE_URL_PREFIX = '' # Empty or your-prefix/ <- Must end with a slash /!\
 SITE_URL = DOMAIN + SITE_URL_PREFIX
 
 SECRET_KEY = ''
+API_KEY = '' # Define it if you want to connect with android!
 
 DEBUG = False
 TEMPLATE_DEBUG = False

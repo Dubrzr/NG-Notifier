@@ -50,6 +50,13 @@
 {% endblock contents %}
 {% block scripts %}
   <script>
+    var delay = (function(){
+      var timer = 0;
+      return function(callback, ms){
+        clearTimeout (timer);
+        timer = setTimeout(callback, ms);
+      };
+    })();
     function show_result(str) {
       var contents = $("#news-list");
       contents.css("overflow","auto");
@@ -57,7 +64,9 @@
       if (str.length < 2)
         return;
       $.ajax({
-        url: "{% url 'search' %}?term=" + str + '&web_render'
+        url: "{% url 'search' %}?term=" + str + '&web_render',
+        async: false,
+        type: 'GET'
       }).done(function (json) {
         contents.html("");
         if (jQuery.isEmptyObject(json))
@@ -90,8 +99,11 @@
     }
 
     $("#input_search").keyup(function(event) {
-      show_result($(this).val());
-      event.preventDefault();
+      var ahah = $(this);
+      delay(function(){
+        show_result(ahah.val());
+        event.preventDefault();
+      }, 500 );
     });
 
   </script>
