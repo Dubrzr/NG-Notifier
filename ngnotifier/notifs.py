@@ -102,7 +102,6 @@ def send_notif(new_news, ng_group):
 
         m_to_addrs = ''
         p_api_keys = []
-        p_devices = []
 
         for follower in followers:
             if follower.send_emails:
@@ -112,7 +111,7 @@ def send_notif(new_news, ng_group):
 
             if follower.send_pushbullets:
                 # Add follower to pushbullet list
-                p_api_keys.append(follower.pushbullet_api_ice)
+                p_api_keys.append(follower.pushbullet_api_key)
 
         m += send_email(msg,
                         subject,
