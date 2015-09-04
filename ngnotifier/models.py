@@ -98,8 +98,8 @@ class DeviceSession(models.Model):
         (IOS, 'iOS'),
     )
     service = models.CharField(max_length=2, choices=SERVICE_CHOICES)
-    gcm_device = models.ForeignKey(GCMDevice, null=True)
-    apns_device = models.ForeignKey(APNSDevice, null=True)
+    gcm_device = models.ForeignKey(to='push_notifications.GCMDevice', null=True)
+    apns_device = models.ForeignKey(to='push_notifications.APNSDevice', null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
