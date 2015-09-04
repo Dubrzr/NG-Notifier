@@ -78,7 +78,7 @@ def send_pushs(followers, group, id, subject):
                                                      active=1)
     ios_devices_after = APNSDevice.objects.filter(user__in=followers,
                                                   active=1)
-    return len(android_devices_after + ios_devices_after)
+    return len(android_devices_after) + len(ios_devices_after)
 
 
 
