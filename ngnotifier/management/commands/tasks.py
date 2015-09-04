@@ -7,7 +7,7 @@ from django.conf import settings
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from ngnotifier.settings import SECONDS_DELTA_NEWS, SECONDS_DELTA_GROUP
-from ngnotifier.tasks import update_news, update_groups
+from ngnotifier.tasks import update_news, update_hosts
 from ngnotifier.utils import bcolors
 
 class Command(BaseCommand):
@@ -32,7 +32,7 @@ class Command(BaseCommand):
         self.stdout.write('------------------------>>')
         scheduler = BackgroundScheduler()
         scheduler.add_job(update_news, 'interval', seconds=SECONDS_DELTA_NEWS)
-        scheduler.add_job(update_groups, 'interval', seconds=SECONDS_DELTA_GROUP)
+        scheduler.add_job(update_hosts, 'interval', seconds=SECONDS_DELTA_GROUP)
         scheduler.start()
         self.stdout.write('------------------------>> ' +
                           bcolors.OKGREEN + 'Done !\n\n' + bcolors.ENDC)

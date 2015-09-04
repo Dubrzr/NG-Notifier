@@ -10,6 +10,7 @@ from django.db import models
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
     print_done, print_exists, print_fail, print_msg, get_father,\
     properly_decode_header, bcolors, get_co
+from push_notifications.models import APNSDevice, GCMDevice
 
 
 class UserManager(BaseUserManager):
@@ -45,6 +46,7 @@ class User(AbstractBaseUser):
     is_active = models.BooleanField(default=False)
     is_admin = models.BooleanField(default=False)
     signature = models.TextField(default='')
+    anonymous = models.BooleanField(default=False)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -70,13 +72,24 @@ class User(AbstractBaseUser):
             self.send_pushbullets = not self.send_pushbullets
             self.save()
 
+    def switch_device(self, registration_id):
+        devices = self.get_devices()
+        for device in devices:
+            if device.registration_id == registration_id:
+                device.switch_active()
+                break
+
     def add_ng_group(self, ng_group):
         ng_group.followers.add(self)
         ng_group.save()
 
+    def get_devices(self):
+        devices = list(DeviceSession.objects.filter(gcm_device__user_id=self.id))
+        devices += list(DeviceSession.objects.filter(apns_device__user_id=self.id))
+        return devices
+
 
 class DeviceSession(models.Model):
-    user = models.ForeignKey(User)
     session_key = models.CharField(max_length=60)
     ANDROID = 'AN'
     IOS = 'IO'
@@ -85,13 +98,46 @@ class DeviceSession(models.Model):
         (IOS, 'iOS'),
     )
     service = models.CharField(max_length=2, choices=SERVICE_CHOICES)
-    registration_id = models.CharField(max_length=255)
+    gcm_device = models.ForeignKey(GCMDevice, null=True)
+    apns_device = models.ForeignKey(APNSDevice, null=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
             self.session_key = sha224(uuid4().hex.encode('utf-8')).hexdigest()
-        super(DeviceSession, self).save(*args, **kwargs)
-        return self.session_key
+        return super(DeviceSession, self).save(*args, **kwargs)
+
+    def delete(self, *args, **kwargs):
+        print(self.service)
+        if self.service == 'AN':
+            self.gcm_device.delete()
+        else:
+            self.apns_device.delete()
+        return super(DeviceSession, self).delete(*args, **kwargs)
+
+    def get_name(self):
+        return self.gcm_device.name if self.service == 'AN'\
+            else self.apns_device.name
+
+    def get_registration_id(self):
+        return self.gcm_device.registration_id if self.service == 'AN' \
+            else self.apns_device.registration_id
+
+    def get_user(self):
+        return self.gcm_device.user if self.service == 'AN'\
+            else self.apns_device.user
+
+    def is_active(self):
+        return self.gcm_device.active if self.service == 'AN'\
+            else self.apns_device.active
+
+    def switch_active(self):
+        if self.service == 'AN':
+            self.gcm_device.active = not self.is_active()
+            self.gcm_device.save()
+        else:
+            self.apns_device.active = not self.is_active()
+            self.apns_device.save()
+
 
 
 def kinship_updater(news_list):

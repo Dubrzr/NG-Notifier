@@ -1,14 +1,12 @@
-from _sha256 import sha224
 from datetime import datetime
-from uuid import uuid4
 
 from django.contrib.auth import login as auth_login, authenticate
-from django.contrib.auth import logout
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ngnotifier.utils import serializable_object
+from push_notifications.models import GCMDevice, APNSDevice
 from rest_framework.decorators import api_view
 from ngnotifier.decorators import api_key_required, device_login_required
 
@@ -16,8 +14,6 @@ from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer, NGNewsDetailSerializer
 from ngnotifier.views import JSONResponse
-from ngnotifier.settings import API_KEY
-
 
 @never_cache
 @csrf_exempt
@@ -280,9 +276,10 @@ def login_phone(request):
     password = request.POST.get('password', '')
     service = request.POST.get('service', '')
     device_id = request.POST.get('device_id', '')
+    device_name = request.POST.get('device_name', '')
 
     if username == '' or password == '' or \
-        service == '' or device_id == '':
+        service == '' or device_id == '' or device_name == '':
         return HttpResponse(status=404)
 
     if not (service == 'android' or service == 'ios'):
@@ -291,14 +288,23 @@ def login_phone(request):
     user = authenticate(username=username, password=password)
     if user is not None:
         if user.is_active:
-            auth_login(request, user)
-
-            DeviceSession.objects.get(registration_id=device_id).delete()
-
+            try:
+                if service == 'android':
+                    DeviceSession.objects.get(gcm_device__registration_id=device_id).delete()
+                else:
+                    DeviceSession.objects.get(apns_device__registration_id=device_id).delete()
+            except:
+                pass
             session = DeviceSession()
             session.service = 'AN' if service == 'android' else 'IO'
-            session.registration_id = device_id
-            session.user = user
+            if service == 'android':
+                gcm_device = GCMDevice(registration_id=device_id, user=user, name=device_name)
+                gcm_device.save()
+                session.gcm_device = gcm_device
+            else:
+                apns_device = APNSDevice(registration_id=device_id, user=user, name=device_name)
+                apns_device.save()
+                session.apns_device = apns_device
             session.save()
 
             data = {
@@ -307,13 +313,21 @@ def login_phone(request):
                     'email': user.send_emails,
                     'pushbullet': user.send_pushbullets,
                     'pushbullet_api_key': user.pushbullet_api_key,
-                    'devices': []
+                    'devices': [
+                        {
+                            'id': d.id,
+                            'name': d.get_name(),
+                            'active': d.is_active(),
+                            'type': 'android' if d.service == 'AN' else 'ios'
+
+                        } for d in user.get_devices()
+                    ] if user.get_devices() else []
                 },
                 'session_key': session.session_key
             }
             return JsonResponse(data, safe=False)
         else:
-            return JsonResponse({'error': 2, 'message': "You must first confirm your account"}, safe=False, status=403)
+            return JsonResponse({'error': 3, 'message': "You must first confirm your account"}, safe=False, status=403)
 
     return JsonResponse({'error': 1, 'message': "This account does not exist / the specified password is incorrect"}, safe=False, status=403)
 
@@ -321,6 +335,6 @@ def login_phone(request):
 @api_view(['GET'])
 @api_key_required
 @device_login_required
-def logout_phone(request, session):
-    session.delete()
+def logout_phone(request, device_session):
+    device_session.delete()
     return HttpResponse(status=200)

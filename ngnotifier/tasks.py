@@ -36,6 +36,6 @@ def update_news(verbose=False, notif=True):
         print('\t\tSent {} pushs!'.format(p))
 
 
-def update_groups(verbose=False):
+def update_hosts(verbose=False):
     for host in NGHost.objects.all():
         host.update_groups(groups=hosts[host.host]['groups'], verbose=verbose)

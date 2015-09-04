@@ -17,9 +17,9 @@ def device_login_required(func):
     def decorator(request, *args, **kwargs):
         session_key = request.META.get('HTTP_SESSION', '')
         try:
-            session = DeviceSession.objects.get(session_key=session_key)
+            device_session = DeviceSession.objects.get(session_key=session_key)
         except:
             return HttpResponse(status=403)
-        kwargs.update({'session': session})
+        kwargs.update({'device_session': device_session})
         return func(request, *args, **kwargs)
     return decorator

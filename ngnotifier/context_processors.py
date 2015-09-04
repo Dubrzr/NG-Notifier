@@ -22,6 +22,6 @@ def site_infos(request):
         'site_name': settings.SITE_NAME,
         'protocol': protocol,
         'domain': domain,
-        'nb_users': len(User.objects.filter(is_active=True)),
+        'nb_users': len(User.objects.filter(is_active=True, anonymous=False)),
         'nb_notifs_sent': count
     }

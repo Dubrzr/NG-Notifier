@@ -53,7 +53,7 @@
 								</div>
 							</div>
 							<div class="form-group">
-								<label for="inputEmail" class="col-lg-2 control-label">API Key</label>
+								<label for="inputEmail" class="col-lg-2 control-label">Pushbullet API Key</label>
 								<div class="col-lg-10">
 									<input class="form-control" name="pushbullet_api_key" type="text" placeholder="Your key" value="{{ user.pushbullet_api_key }}">
 									<div class="checkbox">
@@ -63,6 +63,22 @@
 									</div>
 								</div>
 							</div>
+							{% if user.get_devices %}
+								<div class="form-group">
+									<label for="inputEmail" class="col-lg-2 control-label">Associated mobile devices</label>
+									<div class="col-lg-10">
+										<div class="bs-component">
+											<div class="list-group">
+											{% for device in user.get_devices %}
+												<a href="#" class="list-group-item">
+													{{ device.get_name }} <b>[{% if device.is_active %}Active{% else %}Disabled{% endif %}]</b>
+												</a>
+											{% endfor %}
+											</div>
+										</div>
+									</div>
+								</div>
+							{% endif %}
 						</fieldset>
 						<div id="source-button" class="btn btn-primary btn-xs" style="display: none;">&lt; &gt;</div>
 					</div>
