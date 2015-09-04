@@ -57,6 +57,7 @@ INSTALLED_APPS = (
     'captcha',
     'apscheduler',
     'rest_framework',
+    'push_notifications',
 )
 
 MIDDLEWARE_CLASSES = (
@@ -142,6 +143,12 @@ mail_conf = {
     'user': '',
     'pass': '',
     'ssl': True
+}
+
+
+PUSH_NOTIFICATIONS_SETTINGS = {
+    'GCM_API_KEY': '<your api key>', # Google GCM
+    'APNS_CERTIFICATE': '/path/to/your/certificate.pem', # Apple APNS
 }
 
 

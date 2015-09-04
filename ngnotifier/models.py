@@ -1,5 +1,7 @@
 from datetime import datetime
 from itertools import chain
+from _sha256 import sha224
+from uuid import uuid4
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
@@ -71,6 +73,25 @@ class User(AbstractBaseUser):
     def add_ng_group(self, ng_group):
         ng_group.followers.add(self)
         ng_group.save()
+
+
+class DeviceSession(models.Model):
+    user = models.ForeignKey(User)
+    session_key = models.CharField(max_length=60)
+    ANDROID = 'AN'
+    IOS = 'IO'
+    SERVICE_CHOICES = (
+        (ANDROID, 'Android'),
+        (IOS, 'iOS'),
+    )
+    service = models.CharField(max_length=2, choices=SERVICE_CHOICES)
+    registration_id = models.CharField(max_length=255)
+
+    def save(self, *args, **kwargs):
+        if not self.pk:
+            self.session_key = sha224(uuid4().hex.encode('utf-8')).hexdigest()
+        super(DeviceSession, self).save(*args, **kwargs)
+        return self.session_key
 
 
 def kinship_updater(news_list):

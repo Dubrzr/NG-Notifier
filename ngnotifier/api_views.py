@@ -2,14 +2,17 @@ from _sha256 import sha224
 from datetime import datetime
 from uuid import uuid4
 
+from django.contrib.auth import login as auth_login, authenticate
+from django.contrib.auth import logout
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ngnotifier.utils import serializable_object
 from rest_framework.decorators import api_view
+from ngnotifier.decorators import api_key_required, device_login_required
 
-from ngnotifier.models import NGHost, NGGroup, NGNews, User
+from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer, NGNewsDetailSerializer
 from ngnotifier.views import JSONResponse
@@ -268,47 +271,56 @@ def search(request, host=None, group=None):
         return JSONResponse(serializer.data)
 
 
-@api_view(['GET'])
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
 def login_phone(request):
-    if API_KEY == '':
-        return HttpResponse(status=500)
 
-    api_key = request.GET.get('key', '')
-    login = request.GET.get('login', '')
-    password = request.GET.get('password', '')
+    username = request.POST.get('username', '')
+    password = request.POST.get('password', '')
+    service = request.POST.get('service', '')
+    device_id = request.POST.get('device_id', '')
 
-    if api_key == '' or login == '' or password == '':
+    if username == '' or password == '' or \
+        service == '' or device_id == '':
         return HttpResponse(status=404)
 
-    if api_key != API_KEY:
-        return HttpResponse(status=404)
+    if not (service == 'android' or service == 'ios'):
+        return JsonResponse({'error': 3, 'message': "The service should be either 'android' or 'ios'"}, safe=False, status=403)
 
-    try:
-        user = User.objects.get(email=login)
-    except:
-        return HttpResponse(status=404)
+    user = authenticate(username=username, password=password)
+    if user is not None:
+        if user.is_active:
+            auth_login(request, user)
 
-    if not user.is_active:
-        return JsonResponse({'error': 2, 'message': "You must first confirm your account"}, safe=False, status=403)
+            DeviceSession.objects.get(registration_id=device_id).delete()
 
-    if not user.check_password(password):
-        return JsonResponse({'error': 1, 'message': "This account does not exist / specified password is incorrect"}, safe=False, status=403)
+            session = DeviceSession()
+            session.service = 'AN' if service == 'android' else 'IO'
+            session.registration_id = device_id
+            session.user = user
+            session.save()
 
-    token = sha224(uuid4().hex.encode('utf-8')).hexdigest()
-    user.token_phone = token
-    user.save()
+            data = {
+                'error': 0,
+                'notifs': {
+                    'email': user.send_emails,
+                    'pushbullet': user.send_pushbullets,
+                    'pushbullet_api_key': user.pushbullet_api_key,
+                    'devices': []
+                },
+                'session_key': session.session_key
+            }
+            return JsonResponse(data, safe=False)
+        else:
+            return JsonResponse({'error': 2, 'message': "You must first confirm your account"}, safe=False, status=403)
 
+    return JsonResponse({'error': 1, 'message': "This account does not exist / the specified password is incorrect"}, safe=False, status=403)
 
-    data = {
-        'error': 0,
-        'token': token,
-        'notifs': {
-            'email': user.send_emails,
-            'pushbullet': user.send_pushbullets,
-            'pushbullet_api_key': user.pushbullet_api_key,
-            'devices': []
-        }
-    }
-
-    return JsonResponse(data, safe=False)
-
+@csrf_exempt
+@api_view(['GET'])
+@api_key_required
+@device_login_required
+def logout_phone(request, session):
+    session.delete()
+    return HttpResponse(status=200)

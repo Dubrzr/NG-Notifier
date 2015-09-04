@@ -215,8 +215,8 @@ def post(request):
 def login_user(request):
     logout(request)
     if request.POST:
-        username = request.POST['username']
-        password = request.POST['password']
+        username = request.POST.get('username')
+        password = request.POST.get('password')
 
         user = authenticate(username=username, password=password)
         if user is not None:
