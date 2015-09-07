@@ -50,9 +50,8 @@ def send_pushbullet(api_keys, subject, msg):
             pb = PushBullet(api_key)
             if not pb:
                 continue
-            for device in pb.devices:
-                device.push_note(subject, msg)
-                count += 1
+            pb.push_note(subject, msg)
+            count += len(pb.devices)
         except InvalidKeyError:
             pass
 

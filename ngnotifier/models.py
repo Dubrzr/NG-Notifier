@@ -38,7 +38,6 @@ class User(AbstractBaseUser):
 
     email = models.EmailField('email address', max_length=254, unique=True)
     token = models.TextField()
-    token_phone = models.TextField()
     pushbullet_api_key = models.TextField(null=True)
     send_emails = models.BooleanField(default=True)
     send_pushbullets = models.BooleanField(default=False)
