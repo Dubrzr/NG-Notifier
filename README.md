@@ -66,8 +66,7 @@ You now have a ready to run application.
 ### Running the app
 
 * To run the server just type `python manage.py runserver`.
-* To execute tasks automatically, type `python manage.py celery -A ngnotifier
-  worker --beat --concurrency=1`
+* To execute tasks automatically, type `python manage.py tasks`
 
 ## About
 
@@ -110,6 +109,6 @@ python manage.py runserver
 Run the notifier with:
 
 ```
-python manage.py celery -A ngnotifier worker --beat --concurrency=1
+python manage.py tasks
 ```
 
