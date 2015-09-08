@@ -6,13 +6,14 @@ from django.core.validators import validate_email
 from django.core.exceptions import ValidationError
 from django.contrib.auth import authenticate
 from django.core.exceptions import ObjectDoesNotExist
+from django.template import RequestContext
 from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ngnotifier.notifs import send_email
-from ngnotifier.settings import SITE_URL, FROM_ADDR
+from ngnotifier import settings
 from ngnotifier.utils import serializable_object
 from push_notifications.models import GCMDevice, APNSDevice
 from rest_framework.decorators import api_view
@@ -386,14 +387,23 @@ def register_phone(request):
         context = {
             'user': new_user,
             'token': token,
-            'site_url': SITE_URL
+            'site_url': settings.SITE_URL
         }
         html_content = render_to_string(
             'email/token.html',
-            context
+            context,
+            context_instance=RequestContext(request)
         )
         if send_email(html_content, 'NG Notifier',
-                      FROM_ADDR, new_user.email, 'html'):
+                      settings.FROM_ADDR, new_user.email, 'html'):
             return HttpResponse(status=200)
 
         return HttpResponse(status=500)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+def forgot_password_phone(request):
+    pass
+    username = request.POST.get('username', '')
