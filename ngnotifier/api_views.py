@@ -405,5 +405,29 @@ def register_phone(request):
 @api_view(['POST'])
 @api_key_required
 def forgot_password_phone(request):
-    pass
+
     username = request.POST.get('username', '')
+
+    if username == '':
+        return HttpResponse(status=200)
+
+    try:
+        token = sha224(uuid4().hex.encode('utf-8')).hexdigest()
+        user = User.objects.get(email=username)
+        user.token = token
+        user.save()
+        context = {
+            'user': user,
+            'token': token,
+            'site_url': settings.SITE_URL
+        }
+        html_content = render_to_string(
+            'email/forgot_password.html',
+            context,
+            context_instance=RequestContext(request)
+        )
+        if send_email(html_content, 'NG Notifier',
+                      settings.FROM_ADDR, user.email, 'html'):
+            return HttpResponse(status=200)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=200)
