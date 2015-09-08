@@ -1,5 +1,3 @@
-* try button on notif page for pushbullet
-* Button to select all/ING1 related/ING2 related/... groups
+* try button on notif page for pushbullet/pushs
 * API for login/logout/registration/forgotten password/...
-* Push notifications for android
-* Push notifications for iOS
+* Add a link in notifs to unsubscribe

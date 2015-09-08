@@ -106,7 +106,6 @@ class DeviceSession(models.Model):
         return super(DeviceSession, self).save(*args, **kwargs)
 
     def delete(self, *args, **kwargs):
-        print(self.service)
         if self.service == 'AN':
             self.gcm_device.delete()
         else:

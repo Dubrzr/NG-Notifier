@@ -1,16 +1,24 @@
+from _sha256 import sha224
 from datetime import datetime
+from uuid import uuid4
 
-from django.contrib.auth import login as auth_login, authenticate
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth import authenticate
+from django.core.exceptions import ObjectDoesNotExist
+from django.template.loader import render_to_string
 from django.views.decorators.cache import never_cache
 from django.http import HttpResponse, JsonResponse
 from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
+from ngnotifier.notifs import send_email
+from ngnotifier.settings import SITE_URL, FROM_ADDR
 from ngnotifier.utils import serializable_object
 from push_notifications.models import GCMDevice, APNSDevice
 from rest_framework.decorators import api_view
 from ngnotifier.decorators import api_key_required, device_login_required
 
-from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession
+from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession, User
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer, NGNewsDetailSerializer
 from ngnotifier.views import JSONResponse
@@ -338,3 +346,54 @@ def login_phone(request):
 def logout_phone(request, device_session):
     device_session.delete()
     return HttpResponse(status=200)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+def register_phone(request):
+
+    username = request.POST.get('username', '')
+    password = request.POST.get('password', '')
+
+    if username == '' or password == '':
+        return HttpResponse(status=404)
+
+    try:
+        validate_email(username)
+    except ValidationError:
+        data = {
+            "error" : 2,
+            "message" : "Invalid username format (must be a valid email address)"
+        }
+        return JsonResponse(data, safe=False, status=400)
+
+    try:
+        User.objects.get(email=username)
+        data = {
+            "error" : 1,
+            "message" : "This mail is already used in an account"
+        }
+        return JsonResponse(data, safe=False, status=400)
+    except ObjectDoesNotExist:
+        token = sha224(uuid4().hex.encode('utf-8')).hexdigest()
+        new_user = User()
+        new_user.token = token
+        new_user.email = username
+        new_user.set_password(password)
+        new_user.save()
+
+        context = {
+            'user': new_user,
+            'token': token,
+            'site_url': SITE_URL
+        }
+        html_content = render_to_string(
+            'email/token.html',
+            context
+        )
+        if send_email(html_content, 'NG Notifier',
+                      FROM_ADDR, new_user.email, 'html'):
+            return HttpResponse(status=200)
+
+        return HttpResponse(status=500)
