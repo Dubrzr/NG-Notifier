@@ -82,6 +82,27 @@ class User(AbstractBaseUser):
         ng_group.followers.add(self)
         ng_group.save()
 
+    def create_session(self, service, registration_id, device_name):
+        try:
+            if service == 'android':
+                DeviceSession.objects.get(gcm_device__registration_id=registration_id).delete()
+            else:
+                DeviceSession.objects.get(apns_device__registration_id=registration_id).delete()
+        except:
+            pass
+        session = DeviceSession()
+        session.service = 'AN' if service == 'android' else 'IO'
+        if service == 'android':
+            gcm_device = GCMDevice(registration_id=registration_id, user=self, name=device_name)
+            gcm_device.save()
+            session.gcm_device = gcm_device
+        else:
+            apns_device = APNSDevice(registration_id=registration_id, user=self, name=device_name)
+            apns_device.save()
+            session.apns_device = apns_device
+        session.save()
+        return session
+
     def get_devices(self):
         devices = list(DeviceSession.objects.filter(gcm_device__user_id=self.id))
         devices += list(DeviceSession.objects.filter(apns_device__user_id=self.id))

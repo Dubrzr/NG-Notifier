@@ -15,6 +15,7 @@ api_urlpatterns = patterns(
     url(r'^logout', api_views.logout_phone, name='logout_phone'),
     url(r'^register', api_views.register_phone, name='register_phone'),
     url(r'^forgot_password', api_views.forgot_password_phone, name='forgot_password_phone'),
+    url(r'^subscribe_notifications', api_views.subscribe_notifications, name='subscribe_notifications_phone'),
     url(r'^topic/(?P<news_id>.+)/$', api_views.news_detail,
         name='news_detail'),
     url(r'^(?P<host>.+)/(?P<group>.+)/search$', api_views.search,
