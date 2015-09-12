@@ -331,7 +331,7 @@ def login_phone(request):
             }
             return JsonResponse(data, safe=False)
         else:
-            return JsonResponse({'error': 3, 'message': "You must first confirm your account"}, safe=False, status=403)
+            return JsonResponse({'error': 2, 'message': "You must first confirm your account"}, safe=False, status=403)
 
     return JsonResponse({'error': 1, 'message': "This account does not exist / the specified password is incorrect"}, safe=False, status=403)
 
