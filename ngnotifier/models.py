@@ -202,6 +202,10 @@ class NGNews(models.Model):
         else:
             super().save(*args, **kwargs)
 
+    def get_host(self):
+        for group in self.groups.first():
+            return group.host.host
+
     def get_children(self):
         return NGNews.objects.filter(father=self.message_id)
 

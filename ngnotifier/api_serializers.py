@@ -43,6 +43,47 @@ class NGNewsSerializer(serializers.HyperlinkedModelSerializer):
                   'groups')
 
 
+class NGNewsSerializerWithNames(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(source='pk')
+    uid = serializers.ReadOnlyField(source='message_id')
+    author = serializers.ReadOnlyField(source='email_from')
+    subject = serializers.ReadOnlyField()
+    creation_date = serializers.DateTimeField(source='date',
+                                              format='%Y-%m-%dT%H:%M:%S%z')
+    msg_nb = serializers.ReadOnlyField(source='nb_answers')
+    groups = serializers.SerializerMethodField()
+
+    def get_groups(self, obj):
+        return [g.name for g in obj.groups.all()]
+
+    class Meta:
+        model = NGNews
+        fields = ('id', 'uid', 'author', 'subject', 'creation_date', 'msg_nb',
+                  'groups')
+
+
+class NGNewsSerializerWithNamesAndHost(serializers.HyperlinkedModelSerializer):
+    id = serializers.ReadOnlyField(source='pk')
+    uid = serializers.ReadOnlyField(source='message_id')
+    author = serializers.ReadOnlyField(source='email_from')
+    subject = serializers.ReadOnlyField()
+    creation_date = serializers.DateTimeField(source='date',
+                                              format='%Y-%m-%dT%H:%M:%S%z')
+    msg_nb = serializers.ReadOnlyField(source='nb_answers')
+    host = serializers.SerializerMethodField()
+    groups = serializers.SerializerMethodField()
+
+    def get_host(self, obj):
+        return obj.groups.first().host.host
+
+    def get_groups(self, obj):
+        return [g.name for g in obj.groups.all()]
+
+    class Meta:
+        model = NGNews
+        fields = ('id', 'uid', 'author', 'subject', 'creation_date', 'msg_nb',
+                  'host', 'groups')
+
 class NGNewsDetailSerializer(serializers.BaseSerializer):
     def to_representation(self, node):
         has_children = ng_news_has_children(node)

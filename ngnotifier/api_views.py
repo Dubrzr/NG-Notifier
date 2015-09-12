@@ -24,7 +24,8 @@ from ngnotifier.decorators import api_key_required, device_login_required
 
 from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession, User
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
-    NGNewsSerializer, NGNewsDetailSerializer
+    NGNewsSerializer, NGNewsDetailSerializer, NGNewsSerializerWithNames,\
+    NGNewsSerializerWithNamesAndHost
 from ngnotifier.views import JSONResponse
 
 @never_cache
@@ -238,7 +239,6 @@ def search(request, host=None, group=None):
     case = request.GET.get('case', 'false')
     case = True if (case == '') else (True if case == 'true' else False)
 
-    print(str(case))
     n_list = []
     if author:
         if case:
@@ -269,7 +269,16 @@ def search(request, host=None, group=None):
 
     n_list = n_list[:limit]
 
-    serializer = NGNewsSerializer(n_list, many=True)
+    names = request.GET.get('names', 'false')
+    names = True if names == '' else (True if names == 'true' else False)
+
+    if names:
+        if host:
+            serializer = NGNewsSerializerWithNames(n_list, many=True)
+        else:
+            serializer = NGNewsSerializerWithNamesAndHost(n_list, many=True)
+    else:
+        serializer = NGNewsSerializer(n_list, many=True)
 
     web_render = request.GET.get('web_render', False) != False
     if web_render:
