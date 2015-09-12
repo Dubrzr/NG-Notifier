@@ -82,6 +82,10 @@ class User(AbstractBaseUser):
         ng_group.followers.add(self)
         ng_group.save()
 
+    def del_ng_group(self, ng_group):
+        ng_group.followers.remove(self)
+        ng_group.save()
+
     def create_session(self, service, registration_id, device_name):
         try:
             if service == 'android':

@@ -420,12 +420,6 @@ def forgot_password_phone(request):
 
 
 
-#J'installe l'appli, je m'abo à un grp ' \
-#'(je save en db un new user anonyme activé ' \
-#'lié à un new device, et j'ajoute son abo),
-#je m'abo à un autre grp (je vois que l'id du device existe déjà,
-#je recup l'user, j'ajoute son abo)
-
 @csrf_exempt
 @api_view(['POST'])
 @api_key_required
@@ -435,6 +429,7 @@ def subscribe_notifications(request):
     registration_id = request.POST.get('registration_id', '')
     host = request.POST.get('host', '')
     newsgroup = request.POST.get('newsgroup', '')
+    newsgroup_list = newsgroup.split(sep=',')
 
     if service == '' or registration_id == '' or host =='' or newsgroup == '':
         return HttpResponse(status=404)
@@ -443,7 +438,6 @@ def subscribe_notifications(request):
         return JsonResponse({'error': 0, 'message': "The service should be either 'android' or 'ios'"}, safe=False, status=403)
 
     host_obj = get_object_or_404(NGHost, host=host)
-    group_obj = get_object_or_404(NGGroup, name=newsgroup, host=host_obj)
 
     # Optional login
     session_key = request.META.get('HTTP_SESSION', '')
@@ -469,8 +463,76 @@ def subscribe_notifications(request):
             session = anonymous.create_session(service, registration_id, "anonymous")
 
     user = session.get_user()
-    if not user in group_obj.followers.all():
-        user.add_ng_group(group_obj)
-        return HttpResponse(status=200)
-    else:
-        return JsonResponse({'error': 1, 'message': 'The device already subscribed this group'}, safe=False, status=400)
+
+    added_list = []
+
+    for newsgroup in newsgroup_list:
+        if newsgroup == '':
+            continue
+
+        group_obj = get_object_or_404(NGGroup, name=newsgroup, host=host_obj)
+
+        if not user in group_obj.followers.all():
+            user.add_ng_group(group_obj)
+            added_list.append(newsgroup)
+
+    return JsonResponse({'added': added_list}, safe=False, status=200)
+
+
+
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+def unsubscribe_notifications(request):
+
+    service = request.POST.get('service', '')
+    registration_id = request.POST.get('registration_id', '')
+    host = request.POST.get('host', '')
+    newsgroup = request.POST.get('newsgroup', '')
+    newsgroup_list = newsgroup.split(sep=',')
+
+    if service == '' or registration_id == '' or host =='' or newsgroup == '':
+        return HttpResponse(status=404)
+
+    if not (service == 'android' or service == 'ios'):
+        return JsonResponse({'error': 0, 'message': "The service should be either 'android' or 'ios'"}, safe=False, status=403)
+
+    host_obj = get_object_or_404(NGHost, host=host)
+
+    # Optional login
+    session_key = request.META.get('HTTP_SESSION', '')
+    try:
+        session = DeviceSession.objects.get(session_key=session_key)
+    except ObjectDoesNotExist:
+        # Try to find if an anonymous user already exists for this device
+        try:
+            if service == 'android':
+                device = GCMDevice.objects.get(registration_id=registration_id)
+                session = DeviceSession.objects.get(gcm_device=device)
+            else:
+                device = APNSDevice.objects.get(registration_id=registration_id)
+                session = DeviceSession.objects.get(apns_device=device)
+        except ObjectDoesNotExist:
+            # Else create a temporary anonymous user
+            random = ''.join([choice(ascii_letters + digits) for n in range(32)])
+            anonymous = User()
+            anonymous.email = random + '@anonymo.us'
+            anonymous.is_active = True
+            anonymous.anonymous = True
+            anonymous.save()
+            session = anonymous.create_session(service, registration_id, "anonymous")
+
+    user = session.get_user()
+
+    remove_list = []
+    for newsgroup in newsgroup_list:
+        if newsgroup == '':
+            continue
+
+        group_obj = get_object_or_404(NGGroup, name=newsgroup, host=host_obj)
+
+        if user in group_obj.followers.all():
+            user.del_ng_group(group_obj)
+            remove_list.append(newsgroup)
+
+    return JsonResponse({'removed': remove_list}, safe=False, status=200)
