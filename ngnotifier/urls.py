@@ -27,6 +27,7 @@ api_urlpatterns = patterns(
         name='news_list_refresh'),
     url(r'^(?P<host>.+)/(?P<group>.+)/$', api_views.news_list,
         name='news_list'),
+    url(r'^(?P<host>.+)/subscriptions$', api_views.group_subscriptions, name='group_list'),
     url(r'^(?P<host>.+)/$', api_views.group_list, name='group_list'),
 )
 

@@ -1,5 +1,6 @@
 from string import ascii_letters, digits
 from django.shortcuts import get_object_or_404
+from ngnotifier.settings import API_KEY
 from random import choice
 from _sha256 import sha224
 from datetime import datetime
@@ -63,11 +64,6 @@ def group_list(request, host):
     """
     Retrieve all NGGroup.
     """
-    try:
-        host = NGHost.objects.get(host=host)
-    except NGHost.DoesNotExist:
-        return HttpResponse(status=400)
-
     hosts = NGGroup.objects.filter(host=host)\
         .order_by('name')
     serializer = NGGroupSerializer(hosts, many=True)
@@ -342,6 +338,21 @@ def login_phone(request):
 def logout_phone(request, device_session):
     device_session.delete()
     return HttpResponse(status=200)
+
+
+@csrf_exempt
+@api_view(['GET'])
+@api_key_required
+@device_login_required
+def group_subscriptions(request, device_session, host):
+    user = device_session.get_user()
+    try:
+        host = NGHost.objects.get(host=host)
+        groups = NGGroup.objects.filter(host=host)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+    data = [{'name': g.name, 'subscribed': (user in g.followers.all())} for g in groups.all()]
+    return JsonResponse(data, safe=False, status=200)
 
 
 @csrf_exempt
