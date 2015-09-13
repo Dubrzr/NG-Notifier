@@ -64,7 +64,7 @@ def group_list(request, host):
     """
     Retrieve all NGGroup.
     """
-    hosts = NGGroup.objects.filter(host=host)\
+    hosts = NGGroup.objects.filter(host__host=host)\
         .order_by('name')
     serializer = NGGroupSerializer(hosts, many=True)
     return JSONResponse(serializer.data)

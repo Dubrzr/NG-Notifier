@@ -19,6 +19,7 @@ api_urlpatterns = patterns(
     url(r'^unsubscribe_notifications', api_views.unsubscribe_notifications, name='unsubscribe_notifications_phone'),
     url(r'^topic/(?P<news_id>.+)/$', api_views.news_detail,
         name='news_detail'),
+    url(r'^(?P<host>.+)/subscriptions$', api_views.group_subscriptions, name='group_list'),
     url(r'^(?P<host>.+)/(?P<group>.+)/search$', api_views.search,
         name='search_group'),
     url(r'^(?P<host>.+)/search$', api_views.search, name='search_host'),
@@ -27,7 +28,6 @@ api_urlpatterns = patterns(
         name='news_list_refresh'),
     url(r'^(?P<host>.+)/(?P<group>.+)/$', api_views.news_list,
         name='news_list'),
-    url(r'^(?P<host>.+)/subscriptions$', api_views.group_subscriptions, name='group_list'),
     url(r'^(?P<host>.+)/$', api_views.group_list, name='group_list'),
 )
 
