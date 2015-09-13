@@ -18,12 +18,12 @@ from django.views.decorators.csrf import csrf_exempt
 from django.views.decorators.http import require_http_methods
 from ngnotifier.notifs import send_email
 from ngnotifier import settings
-from ngnotifier.utils import serializable_object
+from ngnotifier.utils import serializable_object, post_article
 from push_notifications.models import GCMDevice, APNSDevice
 from rest_framework.decorators import api_view
 from ngnotifier.decorators import api_key_required, device_login_required
 
-from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession, User
+from ngnotifier.models import NGHost, NGGroup, NGNews, DeviceSession, User, Log
 from ngnotifier.api_serializers import NGHostSerializer, NGGroupSerializer,\
     NGNewsSerializer, NGNewsDetailSerializer, NGNewsSerializerWithNames,\
     NGNewsSerializerWithNamesAndHost
@@ -556,3 +556,38 @@ def unsubscribe_notifications(request):
             remove_list.append(newsgroup)
 
     return JsonResponse({'removed': remove_list}, safe=False, status=200)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+@device_login_required
+def post_phone(request):
+
+    host = request.POST.getlist('host')
+    groups = request.POST.getlist('groups')
+    subject = request.POST.get('subject')
+    name = request.POST.get('name')
+    email = request.POST.get('email')
+    contents = request.POST.get('contents')
+
+    if host == '' or groups == '' or subject == '' or name == '' or email == ''\
+            or contents == '':
+        return HttpResponse(status=404)
+
+    try:
+        groups = [NGGroup.objects.get(name=group, host__host=host) for group in
+                  groups.split(sep=',')]
+    except:
+        return HttpResponse(status=400)
+
+    if post_article(name, email, groups, subject, contents):
+        post_log = Log()
+        post_log.type = 'P'
+        post_log.date = datetime.now()
+        post_log.user = request.user
+        post_log.description = subject + ' ' + name
+        post_log.save()
+        return HttpResponse(status=200)
+
+    return HttpResponse(status=500)
