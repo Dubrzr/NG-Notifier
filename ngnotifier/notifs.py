@@ -65,6 +65,7 @@ def send_pushs(followers, group, id, subject):
     data = {
         'event_type': 'NEW_NEWS',
         'host': group.host.host,
+        'newsgroup_id': group.id,
         'newsgroup': group.name,
         'news_id': id,
         'subject': subject
