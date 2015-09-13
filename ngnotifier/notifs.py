@@ -32,6 +32,9 @@ def send_email(msg, subject, from_addr, to_addrs, type):
 
     try:
         server.login(mail['user'], mail['pass'])
+    except:
+        pass
+    try:
         server.send_message(msg)
         server.quit()
         return len(to_addrs)
