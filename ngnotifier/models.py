@@ -257,7 +257,6 @@ class NGGroup(models.Model):
                                   'check your connection ({}).'.format(err))
         already_existing_news = []
         new_news_list = []
-        nb_new_topics = 0
         for id, over in overviews:
             hash = hash_over(self.host.host, over)
             try:
@@ -270,8 +269,6 @@ class NGGroup(models.Model):
                     # Check if the already existing news is in self group
                     if self not in n.groups.all():
                         already_existing_news.append(n)
-                        if n.father == '':
-                            nb_new_topics += 1
                 except ObjectDoesNotExist:
                     date = parse_nntp_date(over['date'])
                     _, info = tmp_co.body(over['message-id'])
@@ -292,8 +289,6 @@ class NGGroup(models.Model):
                         nn.father = get_father(over['references'])
                         nn.bytes = over[':bytes']
                         new_news_list.append(nn)
-                        if nn.father == '':
-                            nb_new_topics += 1
                         if verbose:
                             print_done()
                     except Exception as e:
@@ -307,7 +302,7 @@ class NGGroup(models.Model):
             n.groups.add(self)
             n.save()
         self.nb_news += len(already_existing_news) + len(new_news_list)
-        self.nb_topics += nb_new_topics
+        self.nb_topics = NGNews.objects.filter(groups__id=self.id, father='').count()
         self.save()
         return new_news_list
 
