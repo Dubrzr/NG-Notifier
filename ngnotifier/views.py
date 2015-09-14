@@ -48,6 +48,7 @@ def hosts(request):
                 )
         return render_to_response(
             'fail_subscribe_form.html',
+            {'form': CaptchaForm()},
             context_instance=RequestContext(request)
         )
     form = CaptchaForm()
@@ -228,6 +229,7 @@ def login_user(request):
                     reverse('ngnotifier.views.edit_settings'))
     return render_to_response(
         'fail_login_form.html',
+        {'form': CaptchaForm()},
         context_instance=RequestContext(request)
     )
 
