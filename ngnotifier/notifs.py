@@ -16,7 +16,7 @@ def build_notif_msg(ng_news):
         [n.name for n in ng_news.groups.all()])\
            + '\nMessage author: ' + ng_news.email_from
 
-def send_email(followers, ng_group, ng_news):
+def send_email_notif(followers, ng_group, ng_news):
 
     to_addrs = ''
 
@@ -34,8 +34,21 @@ def send_email(followers, ng_group, ng_news):
 
     msg = build_notif_msg(ng_news)
 
-    msg = MIMEText(msg,  'plain')
-    msg['Subject'] = ng_news.subject
+    send_email(to_addrs, ng_news.subject, msg, 'plain')
+
+    for user in users:
+        log = Log()
+        log.type = 'N'
+        log.group = ng_group
+        log.user = user
+        log.description = "Email notification (email=%s) (subject=%s)"\
+                          % (user.email, ng_news.subject)
+        log.save()
+
+
+def send_email(to_addrs, subject, msg, mimetype):
+    msg = MIMEText(msg,  mimetype)
+    msg['Subject'] = subject
     msg['From'] = FROM_ADDR
     msg['BCC'] = to_addrs
 
@@ -47,7 +60,7 @@ def send_email(followers, ng_group, ng_news):
     except Exception as err:
         print('Can\'t connect to the email server.')
         print("Error: {}".format(err))
-        return
+        return False
 
     try:
         server.login(mail['user'], mail['pass'])
@@ -59,16 +72,9 @@ def send_email(followers, ng_group, ng_news):
     except Exception as err:
         print("Can't send email...")
         print("Error: {}".format(err))
-        return
+        return False
 
-    for user in users:
-        log = Log()
-        log.type = 'N'
-        log.group = ng_group
-        log.user = user
-        log.description = "Email notification (email=%s) (subject=%s)"\
-                          % (user.email, ng_news.subject)
-        log.save()
+    return True
 
 
 
@@ -139,6 +145,6 @@ def send_notif(new_news, ng_group):
         return
 
     for ng_news in new_news:
-        send_email(followers, ng_group, ng_news)
+        send_email_notif(followers, ng_group, ng_news)
         send_pushbullet(followers, ng_group, ng_news)
         send_pushs(followers, ng_group, ng_news)

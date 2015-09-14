@@ -38,8 +38,7 @@ def hosts(request):
                 context,
                 context_instance=RequestContext(request)
             )
-            if send_email(html_content, 'NG Notifier',
-                          settings.FROM_ADDR, user.email, 'html'):
+            if send_email(user.email, 'NG Notifier', html_content, 'html'):
                 logout(request)
                 return render_to_response(
                     'sent_email.html',

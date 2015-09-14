@@ -400,8 +400,7 @@ def register_phone(request):
             context,
             context_instance=RequestContext(request)
         )
-        if send_email(html_content, 'NG Notifier',
-                      settings.FROM_ADDR, new_user.email, 'html'):
+        if send_email(new_user.email, 'NG Notifier', html_content, 'html'):
             return HttpResponse(status=200)
 
         return HttpResponse(status=500)
@@ -432,8 +431,7 @@ def forgot_password_phone(request):
             context,
             context_instance=RequestContext(request)
         )
-        if send_email(html_content, 'NG Notifier',
-                      settings.FROM_ADDR, user.email, 'html'):
+        if send_email([user.email], 'NG Notifier', html_content, 'html'):
             return HttpResponse(status=200)
     except ObjectDoesNotExist:
         return HttpResponse(status=200)
