@@ -397,7 +397,7 @@ class Log(models.Model):
         ('P', 'Post')
     )
     type = models.CharField(choices=TYPES, max_length=2, blank=False, default=None)
-    date = models.DateTimeField()
+    date = models.DateTimeField(auto_now_add=True)
     user = models.ForeignKey(User, null=True, default=None)
     news = models.ForeignKey(NGNews, null=True, default=None)
     group = models.ForeignKey(NGGroup, null=True, default=None)

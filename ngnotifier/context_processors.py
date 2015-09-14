@@ -4,17 +4,14 @@ from ngnotifier import settings
 
 
 # NEVER PUT SITE PRIVATE PARAMETERS !!
-from ngnotifier.models import User, NGHost
+from ngnotifier.models import User, NGHost, Log
 
 
 def site_infos(request):
     current_site = get_current_site(request)
     protocol = 'https'  # if request.is_secure() else 'http'
     domain = current_site.domain
-
-    count = 0
-    for host in NGHost.objects.all():
-        count += host.nb_notifs_sent
+    count = Log.objects.filter(type='N').count()
 
     return {
         'site_url': settings.SITE_URL,
