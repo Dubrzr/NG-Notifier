@@ -2,8 +2,6 @@ import smtplib
 import json
 from email.mime.text import MIMEText
 from ngnotifier.models import Log
-from push_notifications.apns import apns_send_bulk_message
-from push_notifications.gcm import gcm_send_bulk_message
 from push_notifications.models import GCMDevice, APNSDevice
 
 from pushbullet import PushBullet

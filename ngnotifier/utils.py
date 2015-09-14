@@ -46,9 +46,12 @@ def parse_nntp_date(str):
         return datetime.now()
 
 
+def get_list_from_references(references):
+    return [e + '>' for e in references.replace(' ', '').split(sep='>') if e != '']
+
 def get_father(references):
     try:
-        return references.split()[-1]
+        return get_list_from_references(references)[-1]
     except Exception:
         return ''
 
@@ -180,18 +183,19 @@ def serializable_object(node, put_children=False, light=False, tab=0):
     return obj
 
 
-def build_article(name, email, groups, subject, contents, encoding):
+def build_article(name, email, groups, subject, contents, father_news, encoding):
     res = ''
     res += 'From: ' + name + ' <' + email + '>' + '\r\n'
     res += 'Newsgroups: ' + ",".join(groups) + '\r\n'
     res += 'Subject: ' + subject + '\r\n'
     res += 'Date: ' + datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
+    res += 'References: ' + ','.join(get_list_from_references(father_news.references) + [father_news.message_id]) + '\r\n'
     res += '\r\n'
     res += contents + '\r\n'
     return res.encode(encoding)
 
 
-def post_article(name, email, groups, subject, contents):
+def post_article(name, email, groups, subject, contents, father_news=None):
     for group in groups:
         settings = hosts[group.host.host]
         try:
@@ -206,5 +210,5 @@ def post_article(name, email, groups, subject, contents):
         except Exception:
             return False
         print(co.post(build_article(name, email, [group.name],
-                                    subject, contents, settings['encoding'])))
+                                    subject, contents, father_news, settings['encoding'])))
         return True

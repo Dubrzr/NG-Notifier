@@ -52,7 +52,6 @@ class User(AbstractBaseUser):
             super().save(*args, **kwargs)
             new_user_log = Log()
             new_user_log.type = 'NU'
-            new_user_log.date = datetime.now()
             new_user_log.user = self
             new_user_log.save()
         else:
@@ -196,8 +195,8 @@ class NGNews(models.Model):
             super().save(*args, **kwargs)
             new_news_log = Log()
             new_news_log.type = 'NN'
-            new_news_log.date = datetime.now()
             new_news_log.news = self
+            new_news_log.group = self.groups.first()
             new_news_log.save()
         else:
             super().save(*args, **kwargs)
@@ -237,7 +236,6 @@ class NGGroup(models.Model):
             super().save(*args, **kwargs)
             new_group_log = Log()
             new_group_log.type = 'NG'
-            new_group_log.date = datetime.now()
             new_group_log.group = self
             new_group_log.save()
         else:

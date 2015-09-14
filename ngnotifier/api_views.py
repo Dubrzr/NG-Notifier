@@ -562,7 +562,7 @@ def unsubscribe_notifications(request):
 @api_view(['POST'])
 @api_key_required
 @device_login_required
-def post_phone(request):
+def post_phone(request, device_session):
 
     host = request.POST.getlist('host')
     groups = request.POST.getlist('groups')
@@ -570,6 +570,7 @@ def post_phone(request):
     name = request.POST.get('name')
     email = request.POST.get('email')
     contents = request.POST.get('contents')
+    father_uid = request.POST.get('father_uid')
 
     if host == '' or groups == '' or subject == '' or name == '' or email == ''\
             or contents == '':
@@ -581,13 +582,19 @@ def post_phone(request):
     except:
         return HttpResponse(status=400)
 
-    if post_article(name, email, groups, subject, contents):
-        post_log = Log()
-        post_log.type = 'P'
-        post_log.date = datetime.now()
-        post_log.user = request.user
-        post_log.description = subject + ' ' + name
-        post_log.save()
+    if father_uid != '':
+        father_news = get_object_or_404(NGNews, message_id=father_uid)
+    else:
+        father_news = None
+
+    if post_article(name, email, groups, subject, contents, father_news):
+        for group in groups:
+            post_log = Log()
+            post_log.type = 'P'
+            post_log.user = device_session.get_user()
+            post_log.description = subject + ' ' + name
+            post_log.group = group
+            post_log.save()
         return HttpResponse(status=200)
 
     return HttpResponse(status=500)
