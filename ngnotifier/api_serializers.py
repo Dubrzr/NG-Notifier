@@ -89,6 +89,7 @@ class NGNewsDetailSerializer(serializers.BaseSerializer):
         has_children = ng_news_has_children(node)
         return {
             'id': node.id,
+            'uid': node.message_id,
             'author': node.email_from,
             'subject': node.subject,
             'content': node.contents,
