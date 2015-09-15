@@ -92,7 +92,6 @@ def news2(request, id):
 def news(request, id):
     news = get_object_or_404(NGNews, id=id)
     html = request.GET.get('html', 'false')
-    print(html)
     html = True if html == '' else (True if html == 'true' else False)
 
     data = {

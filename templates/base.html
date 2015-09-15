@@ -342,7 +342,7 @@
                           '<b>Date:</b> ' + json['date']
                       );
                       $('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
-                      $('<h4>').appendTo('#contents').html('<b>Permalink:</b> <a target="_blank" href="/news/' + json['id'] + '?html">' + json['id'] + '</a>');
+                      $('<h4>').appendTo('#contents').html('<b>Permalink:</b> <a target="_blank" href="news/' + json['id'] + '?html">' + json['id'] + '</a>');
                     });
                   });
                 });
@@ -358,7 +358,7 @@
                     '<b>Date:</b> ' + json['date']
                 );
                 $('<p>').appendTo('#contents').html(add_urls(json['contents']).replace(new RegExp('\r?\n','g'), '<br>'));
-                $('<h4>').appendTo('#contents').html('<b>Permalink:</b> <a target="_blank" href="/news/' + json['id'] + '?html">' + json['id'] + '</a>');
+                $('<h4>').appendTo('#contents').html('<b>Permalink:</b> <a target="_blank" href="news/' + json['id'] + '?html">' + json['id'] + '</a>');
               });
             });
           }
