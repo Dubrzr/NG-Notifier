@@ -91,18 +91,32 @@ def news2(request, id):
 @never_cache
 def news(request, id):
     news = get_object_or_404(NGNews, id=id)
+    html = request.GET.get('html', 'false')
+    print(html)
+    html = True if html == '' else (True if html == 'true' else False)
+
     data = {
+        'id': news.id,
         'from': news.email_from,
         'subject': news.subject,
         'contents': news.contents,
         'date': news.date.strftime('%Y-%m-%d %H:%M:%S'),
         'message-id': news.message_id,
+        'message_id': news.message_id,
         'lines': news.lines,
         'xref': news.xref,
         'references': news.references,
         'bytes': news.bytes,
-        'posted-in': ', '.join([n.name for n in news.groups.all()])
+        'posted-in': ', '.join([n.name for n in news.groups.all()]),
+        'posted_in': ', '.join([n.name for n in news.groups.all()])
     }
+
+    if html:
+        return render_to_response(
+            'news.html',
+            data,
+            context_instance=RequestContext(request))
+
     return JsonResponse(data, safe=False)
 
 

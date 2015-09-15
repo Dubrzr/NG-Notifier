@@ -1,0 +1,32 @@
+{% extends "base.html" %}
+
+{% block contents %}
+    <div class="bs-docs-section">
+        <div class="row">
+            <div class="col-lg-12">
+                <div class="page-header">
+                    <h1 id="forms">News permalink: <a href="{% url 'news' id=id %}?html">/news/{{ id }}?html</a></h1>
+                </div>
+            </div>
+        </div>
+
+        <div class="row">
+            <div class="col-lg-12">
+                <div style="margin-top: 1em" id="contents" class=" well bs-component">
+                    <h5>
+                        <b>Id:</b> {{ id }}<br>
+                        <b>Message-id:</b> {{ message_id }}<br>
+                        <b>Lines:</b> {{ lines }}<br>
+                        <b>Xref:</b> {{ xref }}<br>
+                        <b>References:</b> {{ references }}<br>
+                        <b>From:</b> {{ from }}<br>
+                        <b>Date:</b> {{ date }}<br>
+                        <b>Posted in:</b> {{ posted_in }}<br>
+                    </h5>
+                    <h4><b>{{ subject }}</b></h4>
+                    <pre>{{ contents }}</pre>
+                </div>
+            </div>
+        </div>
+    </div>
+{% endblock contents %}
