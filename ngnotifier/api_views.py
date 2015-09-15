@@ -562,13 +562,13 @@ def unsubscribe_notifications(request):
 @device_login_required
 def post_phone(request, device_session):
 
-    host = request.POST.getlist('host')
-    groups = request.POST.getlist('groups')
-    subject = request.POST.get('subject')
-    name = request.POST.get('name')
-    email = request.POST.get('email')
-    contents = request.POST.get('contents')
-    father_uid = request.POST.get('father_uid')
+    host = request.POST.get('host', '')
+    groups = request.POST.getlist('groups' '')
+    subject = request.POST.get('subject' '')
+    name = request.POST.get('name' '')
+    email = request.POST.get('email' '')
+    contents = request.POST.get('contents' '')
+    father_uid = request.POST.get('father_uid' '')
 
     if host == '' or groups == '' or subject == '' or name == '' or email == ''\
             or contents == '':
@@ -596,3 +596,43 @@ def post_phone(request, device_session):
         return HttpResponse(status=200)
 
     return HttpResponse(status=500)
+
+
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+def update_regid(request):
+
+    service = request.POST.get('service', '')
+    previous = request.POST.get('previous' '')
+    new = request.POST.get('new' '')
+
+    if service == '' or previous == '' or new == '':
+        return HttpResponse(status=404)
+
+    if previous == new:
+        return HttpResponse(status=400)
+
+    try:
+        if service == 'android':
+            previous_device = GCMDevice.objects.get(registration_id=previous)
+            device_name = previous_device.name
+            session = DeviceSession.objects.get(gcm_device=previous_device)
+            session.gcm_device.delete()
+            gcm_device = GCMDevice(registration_id=new, user=session.get_user(), name=device_name)
+            gcm_device.save()
+            session.gcm_device = gcm_device
+        else:
+            previous_device = APNSDevice.objects.get(registration_id=previous)
+            device_name = previous_device.name
+            session = DeviceSession.objects.get(apns_device=previous_device)
+            session.apns_device.delete()
+            apns_device = APNSDevice(registration_id=new, user=session.get_user(), name=device_name)
+            apns_device.save()
+            session.apns_device = apns_device
+        session.save()
+    except ObjectDoesNotExist:
+        pass
+
+    return HttpResponse(status=200)
+
