@@ -224,6 +224,7 @@
           <ul class="list-unstyled">
             <li class="pull-right"><a href="#top">Back to top</a></li>
           </ul>
+          <p><a href="{% url 'all_news' %}">Full news list & Statistics</a></p>
           <p>Made by <a target="_blank" href="http://juliendubiel.net">Julien Dubiel</a>.</p>
           <p>Code released under the <a target="_blank" href="https://github.com/thomaspark/bootswatch/blob/gh-pages/LICENSE">MIT License</a>. Pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>.</p>
           <p style="font-size: 16px;"><b>Any BUG reported is a great help to improve our website. Please open issues <a href="https://github.com/Dubrzr/NG-Notifier/issues">here</a>, we will be very thankful!</b></p>
@@ -296,7 +297,7 @@
         //contents.html("");
         contents.css("overflow","auto");
         event.preventDefault();
-{#        var count = 0;#}
+        var count = 0;
         $.ajax({
           url: '/{{ site_url_prefix }}group2/' + group_id + '/'
         }).done(function(json) {
@@ -310,8 +311,8 @@
             $.each(json, function (key, value) {
               ul.append('<li><a class="news-link" href="#" data-id="' + value['id'] + '">' + value['display-name'] + '</a></li>');
             });
-{#            if (count > 9)#}
-{#              contents.css("overflow", "scroll");#}
+            if (count > 9)
+              contents.css("overflow", "scroll");
 
             $(".news-link").click(function(event) {
               var news_id = this.getAttribute('data-id');

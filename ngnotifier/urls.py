@@ -50,6 +50,8 @@ base_urlpatterns = patterns(
         name='news2'),
     url(r'^settings/$', 'ngnotifier.views.edit_settings', name='edit_settings'),
     url(r'^help$', 'ngnotifier.views.help', name='help'),
+    url(r'^news_list', 'ngnotifier.views.all_news', name='all_news'),
+    url(r'^news_stat_d3', 'ngnotifier.views.news_stat_d3', name='all_news'),
     url(r'^unsubscribe/(?P<id>[0-9]+)-(?P<token>.+)/$',
         'ngnotifier.views.unsubscribe', name='unsubscribe'),
     url(r'^(?P<id>[0-9]+)-(?P<token>.+)$', 'ngnotifier.views.token_validation',

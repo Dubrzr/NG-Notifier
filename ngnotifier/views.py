@@ -1,3 +1,4 @@
+import csv
 from datetime import datetime
 from django.contrib.auth.decorators import login_required
 from django.views.decorators.cache import never_cache
@@ -264,3 +265,37 @@ def api_root(request, format=None):
         'hosts': rf_reverse('host_list', request=request, format=format),
         # 'groups': rf_reverse('group-list', request=request, format=format)
     })
+
+
+def all_news(request):
+    ng_hosts = NGHost.objects.all()
+    total_number_of_news = NGNews.objects.count()
+    return render_to_response(
+        'all_news.html',
+        {'hosts': ng_hosts, 'total_number_of_news': total_number_of_news},
+        context_instance=RequestContext(request)
+    )
+
+
+# 1, 1, news.epita.fr, 0
+# 1, 2, iit.test, 50
+# 2, 1, eu.bintube.com, 0
+# 2, 2, iit.test, 60
+# 3, 1, eu.bintube.com, 0
+# 3, 2, iit.lol, 40
+
+def news_stat_d3(request):
+    response = HttpResponse(content_type='text/csv')
+    response['Content-Disposition'] = 'attachment; filename="somefilename.csv"'
+
+    writer = csv.writer(response)
+
+    ng_hosts = NGHost.objects.all()
+    i = 1
+    for host in ng_hosts:
+        for group in host.get_ordered_groups():
+            writer.writerow([i, 1, host.host, 0])
+            writer.writerow([i, 2, group.name, group.get_nb_topics()])
+            i += 1
+
+    return response

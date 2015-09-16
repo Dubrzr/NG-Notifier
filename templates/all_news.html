@@ -1,0 +1,55 @@
+{% extends "base.html" %}{% load staticfiles %}
+
+{% block contents %}
+    <div class="bs-docs-section">
+
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="page-header">
+                            <h1 id="forms">All news list</h1>
+                        </div>
+                    </div>
+                </div>
+                <ul>
+                    {% for host in hosts %}
+                    {% for group in host.get_ordered_groups %}<li>{{ group.name }}
+                        <ul>
+                            {% for news in group.get_news %}<li><a href="news/{{ news.id }}?html">#{{ news.id }}</a>: {{ news.subject }}</li>
+                            {% endfor %}
+                        </ul>
+                    </li>
+                {% endfor %}
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="col-lg-6">
+                <div class="row">
+                    <div class="col-lg-12">
+                        <div class="page-header">
+                            <h1 id="forms">Statistics</h1>
+                        </div>
+                    </div>
+                    <p>Total number of news: {{ total_number_of_news }}</p>
+                    <div class="main" ng-controller="MainCtrl as sunburst">
+
+                        <div class="visualization">
+                            <sunburst data="sunburst.data"></sunburst>
+                        </div>
+                    </div>
+            </div>
+        </div>
+    </div>
+{% endblock contents %}
+{% block scripts %}
+<!-- scripts -->
+<script src="https://code.angularjs.org/1.3.5/angular.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/3.5.6/d3.min.js" charset="utf-8"></script>
+<script src="{% static "assets/javascripts/app.js" %}"></script>
+<script src="{% static "assets/javascripts/sunburst.js" %}"></script>
+<script>
+    // Hack to make this example display correctly in an iframe on bl.ocks.org
+    d3.select(self.frameElement).style("height", "1000px");
+</script>
+{% endblock scripts %}

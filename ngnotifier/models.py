@@ -317,6 +317,9 @@ class NGGroup(models.Model):
     def get_followers(self):
         return self.has_followers()
 
+    def get_nb_topics(self):
+        return NGNews.objects.filter(groups__in=[self], father='').count()
+
 
 class NGHost(models.Model):
     host = models.TextField(unique=True)
