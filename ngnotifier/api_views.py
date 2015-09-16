@@ -576,7 +576,7 @@ def post_phone(request, device_session):
 
     try:
         groups = [NGGroup.objects.get(name=group, host__host=host) for group in
-                  groups.split(sep=',')]
+                  (groups.split(sep=',') if ',' in groups else [groups])]
     except:
         return HttpResponse(status=400)
 
