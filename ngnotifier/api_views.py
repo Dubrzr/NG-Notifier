@@ -563,12 +563,12 @@ def unsubscribe_notifications(request):
 def post_phone(request, device_session):
 
     host = request.POST.get('host', '')
-    groups = request.POST.getlist('groups' '')
-    subject = request.POST.get('subject' '')
-    name = request.POST.get('name' '')
-    email = request.POST.get('email' '')
-    contents = request.POST.get('contents' '')
-    father_uid = request.POST.get('father_uid' '')
+    groups = request.POST.get('groups', '')
+    subject = request.POST.get('subject', '')
+    name = request.POST.get('name', '')
+    email = request.POST.get('email', '')
+    contents = request.POST.get('contents', '')
+    father_uid = request.POST.get('father_uid', '')
 
     if host == '' or groups == '' or subject == '' or name == '' or email == ''\
             or contents == '':
@@ -576,8 +576,8 @@ def post_phone(request, device_session):
 
     try:
         groups = [NGGroup.objects.get(name=group, host__host=host) for group in
-                  (groups.split(sep=',') if ',' in groups else [groups])]
-    except:
+                  groups.split(sep=',')]
+    except ObjectDoesNotExist:
         return HttpResponse(status=400)
 
     if father_uid != '':
