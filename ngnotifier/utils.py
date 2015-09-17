@@ -189,7 +189,7 @@ def build_article(name, email, groups, subject, contents, father_news, encoding)
     res += 'Newsgroups: ' + ",".join(groups) + '\r\n'
     res += 'Subject: ' + subject + '\r\n'
     res += 'Date: ' + datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
-    res += ('References: ' + ','.join(get_list_from_references(father_news.references) + [father_news.message_id]) + '\r\n') if father_news else ''
+    res += ('References: ' + ''.join(get_list_from_references(father_news.references) + [father_news.message_id]) + '\r\n') if father_news else ''
     res += '\r\n'
     res += contents + '\r\n'
     return res.encode(encoding)
