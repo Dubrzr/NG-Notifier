@@ -106,7 +106,14 @@ def news_list(request, host, group):
                  .filter(groups__in=[group], date__lt=s_date, father='')\
                  .order_by('-date')[:limit]
 
-    serializer = NGNewsSerializer(n_list, many=True)
+    names = request.GET.get('names', 'false')
+    names = True if names == '' else (True if names == 'true' else False)
+
+    if names:
+        serializer = NGNewsSerializerWithNames(n_list, many=True)
+    else:
+        serializer = NGNewsSerializer(n_list, many=True)
+
     return JSONResponse(serializer.data)
 
 
@@ -149,7 +156,14 @@ def news_list_refresh(request, host, group):
                  .filter(groups__in=[group], date__gt=e_date, father='')\
                  .order_by('-date')[:limit]
 
-    serializer = NGNewsSerializer(n_list, many=True)
+    names = request.GET.get('names', 'false')
+    names = True if names == '' else (True if names == 'true' else False)
+
+    if names:
+        serializer = NGNewsSerializerWithNames(n_list, many=True)
+    else:
+        serializer = NGNewsSerializer(n_list, many=True)
+
     return JSONResponse(serializer.data)
 
 
