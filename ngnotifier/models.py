@@ -263,9 +263,12 @@ class NGGroup(models.Model):
                 if verbose:
                     print_msg('news', properly_decode_header(over['subject']))
                 try:
-                    n = NGNews.objects.get(hash=hash)
+                    n = NGNews.objects.get(group__id=self, message_id=over['message_id'])
                     if verbose:
                         print_exists()
+                    if n.hash != hash:
+                        n.delete()
+                        raise ObjectDoesNotExist()
                     # Check if the already existing news is in self group
                     if self not in n.groups.all():
                         already_existing_news.append(n)
