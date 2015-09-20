@@ -263,7 +263,7 @@ class NGGroup(models.Model):
                 if verbose:
                     print_msg('news', properly_decode_header(over['subject']))
                 try:
-                    n = NGNews.objects.get(group__id=self, message_id=over['message_id'])
+                    n = NGNews.objects.get(groups__in=[self], message_id=over['message_id'])
                     if verbose:
                         print_exists()
                     if n.hash != hash:

@@ -1,3 +1,4 @@
+import datetime
 import smtplib
 import json
 from email.mime.text import MIMEText
@@ -107,7 +108,9 @@ def send_pushs(followers, ng_group, ng_news):
         'newsgroup_id': ng_group.id,
         'newsgroup': ng_group.name,
         'news_id': ng_news.id,
-        'subject': ng_news.subject
+        'subject': ng_news.subject,
+        'author': ng_news.email_from,
+        'creation_date': ng_news.date.strftime("%Y-%m-%dT%H:%M:%S%z")
     }
 
     android_devices = GCMDevice.objects.filter(user__in=followers, active=1)
