@@ -108,7 +108,7 @@ def send_pushs(followers, ng_group, ng_news):
         'newsgroup_id': ng_group.id,
         'newsgroup': ng_group.name,
         'news_id': ng_news.id,
-        'news_uid': ng_news.message_id,"'é"
+        'news_uid': ng_news.message_id,
         'subject': ng_news.subject,
         'author': ng_news.email_from,
         'creation_date': ng_news.date.strftime("%Y-%m-%dT%H:%M:%S%z")
