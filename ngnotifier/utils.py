@@ -28,7 +28,9 @@ def parse_nntp_date(str):
         '%a, %d %b %Y %H:%M:%S %Z',
         '%a, %d %b %Y %H:%M:%S %z',
         '%d %b %Y %H:%M:%S %z',
-        '%a, %d %b %Y %H:%M %z'
+        '%a, %d %b %Y %H:%M %z',
+        '%a, %d %b %y %H:%M:%S %Z',
+        '%d %b %Y %H:%M:%S %Z'
     ]
     for f in possible_formats:
         try:
