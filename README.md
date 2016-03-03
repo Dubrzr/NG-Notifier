@@ -1,7 +1,7 @@
 # NG-Notifier
 A News Reader as a webapp', bundled with celery for frequent checks of news, and a notifier system using mails &amp; pushbullet.
 
-The current version is running [here](https://42portal.com/ng-notifier/).
+The current version is running [here](https://ng-notifier.42portal.com/).
  
 ## How to?
 
