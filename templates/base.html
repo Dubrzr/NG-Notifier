@@ -272,7 +272,6 @@
 
     function open_modal() {
       $("#myModal").modal("show");
-      $('#id_email').val(email.value);
       $('#js-captcha-refresh').click(function(){
         $form = $(this).parents('form');
         var url_img = $(".captcha").attr('src');
