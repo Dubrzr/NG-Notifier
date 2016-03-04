@@ -21,6 +21,7 @@ api_urlpatterns = patterns(
     url(r'^post$',  api_views.post_phone, name='post_phone'),
     url(r'^topic/(?P<news_id>.+)/$', api_views.news_detail,
         name='news_detail'),
+    url(r'^(?P<host>.+)/last$', api_views.host_last, name='host_last'),
     url(r'^(?P<host>.+)/subscriptions$', api_views.group_subscriptions, name='group_list'),
     url(r'^(?P<host>.+)/(?P<group>.+)/search$', api_views.search,
         name='search_group'),

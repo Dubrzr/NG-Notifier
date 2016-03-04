@@ -60,6 +60,42 @@ def host_list(request):
 @never_cache
 @csrf_exempt
 @require_http_methods("GET")
+def host_last(request, host):
+    """
+    Retrieve all last NGNews.
+    """
+    try:
+        host = NGHost.objects.get(host=host)
+    except NGHost.DoesNotExist:
+        return HttpResponse(status=400)
+
+    limit = request.GET.get('limit', '1000')
+    if limit == '' or not limit.isdigit():
+        return HttpResponse(status=400)
+    limit = int(limit)
+    if not limit > 0:
+        return HttpResponse(status=400)
+
+    groups = NGGroup.objects.filter(host=host)
+
+    n_list = NGNews.objects\
+                 .filter(groups__in=groups)\
+                 .order_by('-date')[:limit]
+
+    names = request.GET.get('names', 'false')
+    names = True if names == '' else (True if names == 'true' else False)
+
+    if names:
+        serializer = NGNewsSerializerWithNames(n_list, many=True)
+    else:
+        serializer = NGNewsSerializer(n_list, many=True)
+
+    return JSONResponse(serializer.data)
+
+
+@never_cache
+@csrf_exempt
+@require_http_methods("GET")
 def group_list(request, host):
     """
     Retrieve all NGGroup.
