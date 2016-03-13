@@ -129,6 +129,11 @@
             {{ nb_notifs_sent }} notifs sent!
             </a>
           </li>
+          {% if last_un_update != None %}
+          <li>
+            <a href="#">Last Update: {{ last_un_update | date:'d M Y' }} {{ last_un_update | time:'H:i' }}</a>
+          </li>
+          {% endif %}
         </ul>
         <ul class="nav navbar-nav navbar-right">
           <li>

@@ -393,7 +393,9 @@ class Log(models.Model):
         ('NN', 'New news'),
         ('NG', 'New group'),
         ('N', 'Notification'),
-        ('P', 'Post')
+        ('P', 'Post'),
+        ('UN', 'Update news'),
+        ('UG', 'Update groups')
     )
     type = models.CharField(choices=TYPES, max_length=2, blank=False, default=None)
     date = models.DateTimeField(auto_now_add=True)

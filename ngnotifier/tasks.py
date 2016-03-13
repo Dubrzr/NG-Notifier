@@ -1,5 +1,5 @@
 from ngnotifier.fixtures import hosts
-from ngnotifier.models import NGHost, NGGroup
+from ngnotifier.models import NGHost, NGGroup, Log
 
 from ngnotifier.notifs import send_notif
 from ngnotifier.models import kinship_updater
@@ -22,8 +22,10 @@ def update_news(verbose=False, notif=True):
             nn.add_answer_count()
     if verbose and notif:
         print('\t\tSent {} notifications!'.format(0))
+    Log.objects.create(type='UN')
 
 
 def update_hosts(verbose=False):
     for host in NGHost.objects.all():
         host.update_groups(groups=hosts[host.host]['groups'], verbose=verbose)
+    Log.objects.create(type='UG')
