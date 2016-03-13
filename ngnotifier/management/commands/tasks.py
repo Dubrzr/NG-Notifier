@@ -11,8 +11,7 @@ from ngnotifier.tasks import update_news, update_hosts
 from ngnotifier.utils import bcolors
 
 class Command(BaseCommand):
-    help = 'Installs the app: checks requirements, creates DB, '\
-           'and adds its fixtures'
+    help = 'Checker for new news and new groups'
 
     def add_arguments(self, parser):
         parser.add_argument('--notifs', dest='notifs', default=False, help='Notify when new news are detected.')
