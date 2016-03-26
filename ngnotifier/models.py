@@ -5,7 +5,7 @@ from uuid import uuid4
 
 from django.contrib.auth.models import AbstractBaseUser, BaseUserManager
 from django.core.exceptions import ObjectDoesNotExist
-from django.db import models
+from django.db import models, transaction
 
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
     print_done, print_exists, print_fail, print_msg, get_father,\
@@ -241,6 +241,7 @@ class NGGroup(models.Model):
         else:
             super().save(*args, **kwargs)
 
+    @transaction.atomic
     def update_news(self, tmp_co=None, verbose=False):
         try:
             tmp_co = tmp_co if tmp_co else self.host.get_co()
@@ -356,6 +357,7 @@ class NGHost(models.Model):
                                  all_groups.filter(nb_news=0)))
         return result_list
 
+    @transaction.atomic
     def update_groups(self, groups=None, verbose=False):
         tmp_co = self.get_co()
         if groups is None or len(groups) == 0:
