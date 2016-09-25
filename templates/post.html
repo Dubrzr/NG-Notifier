@@ -21,7 +21,7 @@
                 <div class="col-lg-10">
                   <select name="groups" multiple="" class="form-control">
                   {% for host in hosts %}
-                    {% for grp in host.get_ordered_groups %}
+                    {% for grp in host.get_available_ordered_groups %}
                     <option value="{{ grp.id }}">{{ host.host }}/{{ grp.name }}</option>
                     {% endfor %}
                   {% endfor %}

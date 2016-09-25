@@ -247,7 +247,6 @@ def login_user(request):
     )
 
 
-# API
 class JSONResponse(HttpResponse):
     """
     An HttpResponse that renders its content into JSON.
@@ -263,7 +262,6 @@ class JSONResponse(HttpResponse):
 def api_root(request, format=None):
     return Response({
         'hosts': rf_reverse('host_list', request=request, format=format),
-        # 'groups': rf_reverse('group-list', request=request, format=format)
     })
 
 
@@ -276,13 +274,6 @@ def all_news(request):
         context_instance=RequestContext(request)
     )
 
-
-# 1, 1, news.epita.fr, 0
-# 1, 2, iit.test, 50
-# 2, 1, eu.bintube.com, 0
-# 2, 2, iit.test, 60
-# 3, 1, eu.bintube.com, 0
-# 3, 2, iit.lol, 40
 
 def news_stat_d3(request):
     response = HttpResponse(content_type='text/csv')

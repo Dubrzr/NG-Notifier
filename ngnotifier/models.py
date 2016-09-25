@@ -355,30 +355,23 @@ class NGHost(models.Model):
             raise ConnectionError('Could not connect to the server, please '
                                   'check your connection ({}).'.format(err))
 
-    def get_ordered_groups(self):
-        all_groups = NGGroup.objects.filter(
-            host=self
-        ).order_by('name')
-        result_list = list(chain(all_groups.filter(nb_news__gt=0),
-                                 all_groups.filter(nb_news=0)))
-        return result_list
+    # Get groups that are still available on the server
+    def get_available_groups(self, groups=None, verbose=False):
 
-    @transaction.atomic
-    def update_groups(self, groups=None, verbose=False):
-        tmp_co = self.get_co()
         if groups is None or len(groups) == 0:
-            _, grp_list = tmp_co.list()
+            _, grp_list = self.get_co().list()
             grp_list = [x.group for x in grp_list]
         else:
             grp_list = groups
+
+
+        NGGroups = []
+
         for group in grp_list:
             if verbose:
                 print_msg('group', group)
             try:
-                NGGroup.objects.get(
-                    host=self,
-                    name=group
-                )
+                NGGroups.append(NGGroup.objects.get(host=self, name=group))
                 if verbose:
                     print_exists()
             except ObjectDoesNotExist:
@@ -387,12 +380,34 @@ class NGHost(models.Model):
                     ng_group.host = self
                     ng_group.name = group
                     ng_group.save()
+                    NGGroups.append(ng_group)
                     self.nb_groups += 1
                     self.save()
                     if verbose:
                         print_done()
                 except Exception as e:
                     print_fail(e)
+
+        return NGGroups
+
+
+    def get_ordered_groups(self):
+        all_groups = NGGroup.objects.filter(
+            host=self
+        ).order_by('name')
+        result_list = list(chain(all_groups.filter(nb_news__gt=0),
+                                 all_groups.filter(nb_news=0)))
+        return result_list
+
+    def get_available_ordered_groups(self):
+        groups = self.get_available_groups()
+        groups.sort(key=lambda g: g.name)
+        return groups
+
+
+    @transaction.atomic
+    def update_groups(self, groups=None, verbose=False):
+        self.get_available_groups(groups, verbose)
 
 
 class Log(models.Model):

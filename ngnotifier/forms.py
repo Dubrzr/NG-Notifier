@@ -56,32 +56,3 @@ class SettingsForm(forms.Form):
         if password != '' and password != None:
             user.set_password(password)
         user.save()
-
-
-        # NGGroup.objects.get(id=groups)
-        #
-        # build_article()
-
-        #
-        # 200 news.ig-iit.com InterNetNews NNRP server INN 2.4.3 ready (posting ok).
-        # 221 0 <slrnmfv4nb.36b.popowi_m@dump2017.epitech.net> head
-        # Path: news.ig-iit.com!made by rockyluke!not-for-mail
-        #     From: Mikael Popowicz <popowi_m@epita.fr>
-        # Newsgroups: epita.cours.sql
-        # Subject: [DBZ][TRIGGER] Foreign key
-        # Date: Wed, 11 Mar 2015 00:57:15 +0000 (UTC)
-        # Organization: IONIS Institute of Technology
-        # Lines: 17
-        # Message-ID: <slrnmfv4nb.36b.popowi_m@dump2017.epitech.net>
-        # Reply-To: popowi_m@epita.fr
-        # NNTP-Posting-Host: sge91-4-88-160-88-81.fbx.proxad.net
-        # Mime-Version: 1.0
-        # Content-Type: text/plain; charset=UTF-8
-        # Content-Transfer-Encoding: 8bit
-        # X-Trace: news.ig-iit.com 1426035435 8323 88.160.88.81 (11 Mar 2015 00:57:15 GMT)
-        # X-Complaints-To: https://intranet.ig-iit.com
-        # NNTP-Posting-Date: Wed, 11 Mar 2015 00:57:15 +0000 (UTC)
-        # User-Agent: slrn/1.0.1 (Linux)
-        # Xref: news.ig-iit.com epita.cours.sql:669
-        # .
-        #
