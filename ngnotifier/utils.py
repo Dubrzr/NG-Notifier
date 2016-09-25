@@ -1,5 +1,6 @@
 from datetime import datetime
 import re
+from django.utils.html import escape
 import hashlib
 import nntplib
 from email.header import decode_header, make_header
@@ -167,14 +168,15 @@ def ng_news_has_children(ng_news):
 
 def serializable_object(node, put_children=False, light=False, tab=0):
     has_children = ng_news_has_children(node)
+    subject = escape(node.subject)
     obj = {
         'id': node.id,
-        'name': node.subject,
+        'name': escape(subject),
         'date': node.date,
         'display-name': node.date.strftime('<b>%d-%m-%y %H:%M</b> | ')
                         + ('&nbsp;' * 8 * (tab - 1) if tab > 1 else '')
                         + ('^---' if tab > 0 else '')
-                        + ('' if light else ('● ' if has_children > 0 else '○ ')) + node.subject
+                        + ('' if light else ('● ' if has_children > 0 else '○ ')) + subject[:80] + (subject[80:] and '..')
                         + ' <b>' + node.email_from + '</b>',
         'children': sorted(
             [serializable_object(c, put_children, light, tab + 1) for c in node.get_children()],
