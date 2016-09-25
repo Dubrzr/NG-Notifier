@@ -24,7 +24,7 @@ class NGGroupSerializer(serializers.HyperlinkedModelSerializer):
 
     class Meta:
         model = NGGroup
-        fields = ('id', 'group_name', 'topic_nb')
+        fields = ('id', 'group_name', 'topic_nb', 'available')
 
 
 class NGNewsSerializer(serializers.HyperlinkedModelSerializer):

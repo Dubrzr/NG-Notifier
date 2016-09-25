@@ -5,6 +5,7 @@ from ngnotifier.notifs import send_notif
 from ngnotifier.models import kinship_updater
 
 def update_news(verbose=False, notif=True):
+    notif_count_before = Log.objects.filter(type='N').count()
     for host in NGHost.objects.all():
         # if verbose:
         #     print('Checking host {}:'.format(host.host), flush=False)
@@ -17,11 +18,13 @@ def update_news(verbose=False, notif=True):
             if notif:
                 send_notif(new_news_list, group)
 
+        print("\tUpdating kinship links...")
         kinship_updater(new_news_list_all)
         for nn in new_news_list_all:
             nn.add_answer_count()
     if verbose and notif:
-        print('\t\tSent {} notifications!'.format(0))
+        notif_count_after = Log.objects.filter(type='N').count()
+        print('\tSent {} notifications!'.format(notif_count_after-notif_count_before))
     Log.objects.create(type='UN')
 
 

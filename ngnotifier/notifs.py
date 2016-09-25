@@ -88,8 +88,7 @@ def send_pushbullet(followers, ng_group, ng_news):
                 if not pb:
                     continue
                 pb.push_note(ng_news.subject, msg)
-
-            except InvalidKeyError:
+            except Exception:
                 pass
             log = Log()
             log.type = 'N'

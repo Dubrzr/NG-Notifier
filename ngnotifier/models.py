@@ -161,17 +161,15 @@ class DeviceSession(models.Model):
             self.apns_device.save()
 
 
-
 def kinship_updater(news_list):
-    if len(news_list) > 0:
-        for news in news_list:
-            if news.father != '':
-                try:
-                    father = NGNews.objects.get(message_id=news.father)
-                    father.has_children = True
-                    father.save()
-                except Exception as e:
-                    print(bcolors.FAIL, '      Failed! ', str(e), bcolors.ENDC)
+    for news in news_list:
+        if news.father != '':
+            try:
+                father = NGNews.objects.get(message_id=news.father)
+                father.has_children = True
+                father.save()
+            except Exception as e:
+                print(bcolors.FAIL, '      Failed! ', str(e), bcolors.ENDC)
 
 
 class NGNews(models.Model):
@@ -230,6 +228,7 @@ class NGGroup(models.Model):
     nb_news = models.IntegerField(default=0)
     nb_topics = models.IntegerField(default=0)
     followers = models.ManyToManyField(User, related_name="followers_set")
+    available = models.BooleanField(default=True)
 
     def save(self, *args, **kwargs):
         if not self.pk:
@@ -388,21 +387,20 @@ class NGHost(models.Model):
                 except Exception as e:
                     print_fail(e)
 
+        NGGroup.objects.all()\
+            .exclude(id__in=[x.id for x in NGGroups])\
+            .update(available=False)
+
         return NGGroups
 
 
     def get_ordered_groups(self):
         all_groups = NGGroup.objects.filter(
             host=self
-        ).order_by('name')
+        ).order_by('-available', 'name')
         result_list = list(chain(all_groups.filter(nb_news__gt=0),
                                  all_groups.filter(nb_news=0)))
         return result_list
-
-    def get_available_ordered_groups(self):
-        groups = self.get_available_groups()
-        groups.sort(key=lambda g: g.name)
-        return groups
 
 
     @transaction.atomic

@@ -19,10 +19,12 @@
               <div class="form-group">
                 <label for="inputEmail" class="col-lg-2 control-label">Groups</label>
                 <div class="col-lg-10">
-                  <select name="groups" multiple="" class="form-control">
+                  <select name="groups" multiple="" class="form-control" style="height: 200px;">
                   {% for host in hosts %}
-                    {% for grp in host.get_available_ordered_groups %}
+                    {% for grp in host.get_ordered_groups %}
+	                    {% if grp.available %}
                     <option value="{{ grp.id }}">{{ host.host }}/{{ grp.name }}</option>
+	                    {% endif %}
                     {% endfor %}
                   {% endfor %}
                   </select>

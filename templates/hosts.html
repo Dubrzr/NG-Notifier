@@ -11,6 +11,11 @@
             <input class="form-control input-sm" type="text" id="input_search" placeholder="Search a news, a word, ...">
           </div>
         </fieldset>
+	      <p>Colors:&nbsp;&nbsp;<span class="badge" style="background-color:
+	      #4fd623;
+	      ">available</span>&nbsp;&nbsp;<span class="badge" style="background-color:
+	      #df382c;">old</span>
+	      </p>
         {% with user.get_groups_followed as followed_groups %}
         {% for host in hosts|sort_hosts %}
           <h4><b>{{ host.host }} [{{ host.nb_groups }}]</b></h4>
@@ -18,14 +23,18 @@
             {% for group in host.get_ordered_groups %}
               <li>
                 {% if user.is_authenticated %}
-                  {% if group.id in followed_groups %} {# THIS LINE IS SLOWING DOWN THE PAGE LOADING #}
+                  {% if group.id in followed_groups %}
                     <button class="follow" value="unfollow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-check-square"></i></button>&nbsp;
                   {% else %}
                     <button class="follow" value="follow" data-id="{{ group.id }}" class="btn-flat"><i class="fa fa-square"></i></button>&nbsp;
                   {% endif %}
                 {% endif %}
                 <a data-group="{{ group.id }}" class="group-link" href="#">
-                  <span class="badge">{{ group.nb_topics }}</span>
+                  {% if group.available %}
+                  <span class="badge" style="background-color: #4fd623;">{{ group.nb_topics }}</span>
+                  {% else %}
+                  <span class="badge" style="background-color: #df382c;">{{ group.nb_topics }}</span>
+                  {% endif %}
                   {{ group.name }}
                 </a>
               </li>
