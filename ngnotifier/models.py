@@ -246,7 +246,8 @@ class NGGroup(models.Model):
             tmp_co = tmp_co if tmp_co else self.host.get_co()
         except Exception as err:
             if "423" in str(err):
-                print("NGGroup {} does not exist anymore...".format(self.name))
+                if verbose:
+                    print("NGGroup {} does not exist anymore...".format(self.name))
                 return []
             raise ConnectionError('Could not connect to the server, please '
                                   'check your connection ({}).'.format(err))
@@ -257,7 +258,8 @@ class NGGroup(models.Model):
             _, overviews = tmp_co.over((first, last))
         except Exception as err:
             if "411" in str(err) or "423" in str(err):
-                print("NGGroup {} does not exist anymore...".format(self.name))
+                if verbose:
+                    print("NGGroup {} does not exist anymore...".format(self.name))
                 return []
             raise ConnectionError('Could not connect to the server, please '
                                   'check your connection ({}).'.format(err))

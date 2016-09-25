@@ -14,14 +14,21 @@ class Command(BaseCommand):
     help = 'Checker for new news and new groups'
 
     def add_arguments(self, parser):
-        parser.add_argument('--notifs', dest='notifs', default=False, help='Notify when new news are detected.')
-        parser.add_argument('--verbose', dest='verbose', default=True, help='Print more informations on STDOUT.')
+        parser.add_argument('--notifs', dest='notifs', default='False',
+                            help='Notify when new news are detected.')
+        parser.add_argument('--verbose', dest='verbose', default='True',
+                            help='Print more informations on STDOUT.')
 
 
     def handle(self, *args, **options):
+        options['verbose'] = options['verbose'] == 'True'
+        options['notifs'] = options['notifs'] == 'True'
+
         print(
             'Welcome to the %s tasks launcher...' % settings.SITE_NAME)
         print('Your settings are :')
+        print('-> Verbose: {}'.format(options['verbose']))
+        print('-> Notifs: {}'.format(options['notifs']))
         print('-> Time between two "new group" checks = ' + bcolors.WARNING
               + str(SECONDS_DELTA_GROUP) + ' seconds.' + bcolors.ENDC)
         print('-> Time between two "new news" checks = ' + bcolors.WARNING
