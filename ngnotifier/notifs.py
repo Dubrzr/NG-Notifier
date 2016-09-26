@@ -135,7 +135,7 @@ def send_pushs(followers, ng_group, ng_news):
 
 
     android_devices.send_message(json.dumps(data))
-    ios_devices.send_message(json.dumps(data))
+    #ios_devices.send_message(json.dumps(data))
 
 
 
