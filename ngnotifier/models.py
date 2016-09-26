@@ -9,7 +9,7 @@ from django.db import models, transaction
 
 from ngnotifier.utils import hash_over, parse_nntp_date, get_decoded,\
     print_done, print_exists, print_fail, print_msg, get_father,\
-    properly_decode_header, bcolors, get_co
+    properly_decode_header, get_co
 from push_notifications.models import APNSDevice, GCMDevice
 
 
@@ -161,15 +161,9 @@ class DeviceSession(models.Model):
             self.apns_device.save()
 
 
-def kinship_updater(news_list):
-    for news in news_list:
-        if news.father != '':
-            try:
-                father = NGNews.objects.get(message_id=news.father)
-                father.has_children = True
-                father.save()
-            except Exception as e:
-                print(bcolors.FAIL, '      Failed! ', str(e), bcolors.ENDC)
+def kinship_updater():
+    children_news = NGNews.objects.exclude(father='').values_list('father', flat=True)
+    NGNews.objects.filter(has_children=False, message_id__in=children_news).update(has_children=True)
 
 
 class NGNews(models.Model):
