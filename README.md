@@ -2,6 +2,8 @@
 A News Reader as a webapp', bundled with celery for frequent checks of news, and a notifier system using mails &amp; pushbullet.
 
 The current version is running [here](https://ng-notifier.42portal.com/).
+
+The Android app is available [here](https://play.google.com/store/apps/details?id=com.bertet.francois.epinotifier).
  
 ## How to?
 
