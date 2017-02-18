@@ -183,12 +183,6 @@ class NGNews(models.Model):
     nb_answers = models.IntegerField(default=0)
 
     def save(self, *args, **kwargs):
-        try:
-            n = NGNews.objects.get(hash=self.hash)
-            if n.id != self.id:
-                n.delete()
-        except NGNews.DoesNotExist:
-            pass
         if not self.pk:
             super().save(*args, **kwargs)
             new_news_log = Log()
@@ -267,6 +261,11 @@ class NGGroup(models.Model):
         new_news_list = []
         for id, over in overviews:
             hash = hash_over(self.host.host, over)
+            try:
+                NGNews.objects.get(hash=hash)
+                continue
+            except ObjectDoesNotExist:
+                pass
             try:
                 if verbose:
                     print_msg('news', properly_decode_header(over['subject']))
