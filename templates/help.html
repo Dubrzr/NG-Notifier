@@ -15,22 +15,30 @@
 				<h2>How do I subscribe to groups?</h2>
 				<p>You will only need a valid email address:</p>
 				<ul>
-					<li>Fill in the input in the navigation bar with your email, and click "Subscribe!"</li>
+					<li>Click "Subscribe!" and a subscription form will apear with a captcha. Submit it and you will be able to subscribe news.</li>
 					<li>Check your emails, and click the verification link. (Check your spams if you can't find the mail in your box).</li>
 					<li>You will now be redirected to the settings page, and be able to configure your account.</li>
 					<li>Save your configuration and go to the main page.</li>
 					<li>Some checkboxes will now be available in front of each group. Check the ones you want to subscribe to and you will receive notifications for them.</li>
 				</ul>
 				<h2>Which type of notifications do you provide?</h2>
-				<p>We provide two types of notifications:</p>
+				<p>This website provide two types of notifications:</p>
 				<ul>
 					<li>E-mails</li>
 					<li>Pushs with <a target="_blank" href="https://www.pushbullet.com/">Pushbullet</a></li>
 				</ul>
 				<p>For more types of notifications, please contact us.</p>
+				<p>You can also use mobile apps!</p>
 				<h2>Do you provide mobile apps?</h2>
 				<p><i class="fa fa-android" aria-hidden="true"></i> Android app is available here: <a href="https://play.google.com/store/apps/details?id=com.bertet.francois.epinotifier">EpiNotifier</a></p>
-				<p><i class="fa fa-apple" aria-hidden="true"></i> iOS app is available here: <a href="https://github.com/adrientoub/ToubiNews">github.com/adrientoub/ToubiNews</a></p>
+				<p><i class="fa fa-apple" aria-hidden="true"></i> 1st iOS app is available here: <a href="https://itunes.apple.com/us/app/epireader/id1244757421?mt=8&ign-mpt=uo%3D4">EpiReader</a></p>
+				<p><i class="fa fa-apple" aria-hidden="true"></i> 2th iOS app is available here: <a href="https://github.com/adrientoub/ToubiNews">github.com/adrientoub/ToubiNews</a></p>
+				<p>They provide a lot of functionalities such as:</p>
+				<ul>
+					<li>Browse and read news</li>
+					<li>Search news with filters</li>
+					<li>Receive notifications when news are posted</li>
+				</ul>
 				<h2>How to get a pushbullet API key?</h2>
 				<ul>
 					<li>Subscribe <a target="_blank" href="https://www.pushbullet.com/">here</a>.</li>
@@ -42,7 +50,7 @@
 			<div class="col-lg-6">
 				<h2>Yet another News reader?</h2>
 				<p>Not only... We developed this application with the aim of providing a <b>notifying system</b>.</p>
-				<p>You can indeed subscribe to our notification system by entering your <b>email address</b> in the input present in the navigation bar.</p>
+				<p>You can indeed subscribe to our notification system by entering your <b>email address</b> in the form available in the navigation bar ("Subscribe!" button).</p>
 				
 				<h2>How notifications works?</h2>
 				<p>Every <b>minute</b> our server checks for new news. When a new news is detected, we check if there are any followers for the corresponding group and then we send them emails and/or push notifications.</p>
@@ -51,15 +59,16 @@
 				<h2>Do you provide a post form?</h2>
 				<p>Yes sure!</p>
 				<p>But you can't answer news for now. (<a href="https://github.com/Dubrzr/NG-Notifier/issues/3">Issue #3</a>)</p>
-				<h2>Is there any API?</h2>
+				<h2>Do you have an API?</h2>
 				<p>Yes! We provide an API @ <a href="{% url 'host_list' %}">/api</a>.</p>
-				<p>Check out <a href="https://github.com/Dubrzr/NG-Notifier/blob/master/ngnotifier/urls.py">urls.py</a> for more information.
+				<p>Check out <a href="https://github.com/Dubrzr/NG-Notifier/blob/master/ngnotifier/urls.py">urls.py</a> for more information. If you need advanced functionalities such as mobile notifications, please contact us.
 				<h2>Is there any guarantee?</h2>
 				<p>No, but we do our best to provide high availability.</p>
 				<h2>You want another host?</h2>
 				<p>Ask us! :)</p>
 				<h2>How to improve it?</h2>
 				<p>This is an Open Source project, you can pull request @ <a target="_blank" href="https://github.com/Dubrzr/NG-Notifier">github.com/Dubrzr/NG-Notifier</a>. We will be really happy to review your code, don't hesitate to simply correct indentation, JS, or PEP-8.</p>
+                                <p>You can also contribute to mobile apps.</p>
 			</div>
 		</div>
 	</div>
