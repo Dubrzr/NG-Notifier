@@ -1,4 +1,5 @@
 {% load staticfiles %}
+{% load ngnotifier_filters %}
 <!DOCTYPE html>
 <html lang="en">
   <head>
@@ -11,7 +12,7 @@
     <script src="{% static "assets/javascripts/pace.min.js" %}"></script>
     <link rel="stylesheet" href="{% static "assets/stylesheets/bootstrap.min.css" %}" media="screen">
     <link rel="stylesheet" href="{% static "assets/stylesheets/bootswatch.min.css" %}">
-    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.3.0/css/font-awesome.min.css">
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
       html {
         overflow: -moz-scrollbars-vertical;
@@ -125,8 +126,8 @@
           </li>{% endif %}
           <li>
             <a style="margin:-10px;font-size:10pt;padding-bottom: 5px;margin-left: 0;">
-            {{ nb_users }} subscribers!<br>
-            {{ nb_notifs_sent }} notifs sent!
+            <i class="fa fa-user-o" aria-hidden="true"></i> : {{ nb_users }} <i class="fa fa-desktop" aria-hidden="true"></i> | {{ nb_android }} <i class="fa fa-android" aria-hidden="true"></i> | {{ nb_ios }} <i class="fa fa-apple" aria-hidden="true"></i><br>
+            <i class="fa fa-bell-o" aria-hidden="true"></i> : {{ nb_notifs_sent_email_str }} <i class="fa fa-envelope" aria-hidden="true"></i> | {{ nb_notifs_sent_android_str }} <i class="fa fa-android" aria-hidden="true"></i> | {{ nb_notifs_sent_ios_str }} <i class="fa fa-apple" aria-hidden="true"></i>
             </a>
           </li>
           {% if last_un_update != None %}
