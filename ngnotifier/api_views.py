@@ -499,7 +499,7 @@ def subscribe_notifications(request):
     newsgroup = request.POST.get('newsgroup', '')
     newsgroup_list = newsgroup.split(sep=',')
 
-    if service == '' or registration_id == '' or host =='' or newsgroup == '':
+    if service == '' or registration_id == '' or host == '' or newsgroup == '':
         return HttpResponse(status=404)
 
     if not (service == 'android' or service == 'ios'):
@@ -527,6 +527,7 @@ def subscribe_notifications(request):
             anonymous.email = random + '@anonymo.us'
             anonymous.is_active = True
             anonymous.anonymous = True
+            anonymous.send_emails = False
             anonymous.save()
             session = anonymous.create_session(service, registration_id, "anonymous")
 
@@ -559,7 +560,7 @@ def unsubscribe_notifications(request):
     newsgroup = request.POST.get('newsgroup', '')
     newsgroup_list = newsgroup.split(sep=',')
 
-    if service == '' or registration_id == '' or host =='' or newsgroup == '':
+    if service == '' or registration_id == '' or host == '' or newsgroup == '':
         return HttpResponse(status=404)
 
     if not (service == 'android' or service == 'ios'):
@@ -587,6 +588,7 @@ def unsubscribe_notifications(request):
             anonymous.email = random + '@anonymo.us'
             anonymous.is_active = True
             anonymous.anonymous = True
+            anonymous.send_emails = False
             anonymous.save()
             session = anonymous.create_session(service, registration_id, "anonymous")
 
@@ -686,3 +688,35 @@ def update_regid(request):
 
     return HttpResponse(status=200)
 
+@csrf_exempt
+@api_view(['POST'])
+@api_key_required
+def get_subscribed_groups(request):
+
+    service = request.POST.get('service', '')
+    registration_id = request.POST.get('registration_id', '')
+    host = request.POST.get('host', '')
+
+    if service == '' or registration_id == '' or host == '':
+        return HttpResponse(status=404)
+
+    if not (service == 'android' or service == 'ios'):
+        return JsonResponse({'error': 0, 'message': "The service should be either 'android' or 'ios'"}, safe=False, status=403)
+
+    host_obj = get_object_or_404(NGHost, host=host)
+
+    # Try to find if an anonymous user already exists for this device
+    try:
+        if service == 'android':
+            device = GCMDevice.objects.get(registration_id=registration_id)
+            session = DeviceSession.objects.get(gcm_device=device)
+        else:
+            device = APNSDevice.objects.get(registration_id=registration_id)
+            session = DeviceSession.objects.get(apns_device=device)
+    except ObjectDoesNotExist:
+        return HttpResponse(status=404)
+
+    user = session.get_user()
+
+    data = {'subscribed_groups': [g.name for g in NGGroup.objects.filter(followers__in=[user])]}
+    return JSONResponse(data)
