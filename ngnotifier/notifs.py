@@ -9,6 +9,9 @@ from pushbullet import PushBullet
 from ngnotifier.settings import mail_conf as mail, FROM_ADDR, BOT_MSG
 from pushbullet.errors import InvalidKeyError
 
+from ngnotifier.settings import PUSH_NOTIFICATIONS_SETTINGS
+from apns2.client import APNsClient
+from apns2.payload import Payload
 
 def build_notif_msg(ng_news):
     return ng_news.contents + ' ' + BOT_MSG\
@@ -111,10 +114,10 @@ def send_pushs(followers, ng_group, ng_news):
         'author': ng_news.email_from,
         'creation_date': ng_news.date.strftime("%Y-%m-%dT%H:%M:%S%z")
     }
-
+    
+    # Google Android devices
     android_devices = GCMDevice.objects.filter(user__in=followers, active=1)
-    ios_devices = APNSDevice.objects.filter(user__in=followers, active=1)
-
+    
     for android_device in android_devices:
         log = Log()
         log.type = 'N'
@@ -123,20 +126,41 @@ def send_pushs(followers, ng_group, ng_news):
         log.description = "Android notification (registration_id=%s) (subject=%s)"\
                           % (android_device.registration_id, ng_news.subject)
         log.save()
-
-    for ios_device in ios_devices:
-        log = Log()
-        log.type = 'N'
-        log.group = ng_group
-        log.user = ios_device.user
-        log.description = "iOs notification (registration_id=%s) (subject=%s)" \
-                          % (ios_device.registration_id, ng_news.subject)
-        log.save()
-
-
     android_devices.send_message(json.dumps(data))
-    ios_devices.send_message(json.dumps(data))
-
+    
+    # Apple iOS devices
+    ios_devices = APNSDevice.objects.filter(user__in=followers, active=1)
+    
+    apns_cert_prod = PUSH_NOTIFICATIONS_SETTINGS['APNS_CERTIFICATE']
+    apns_cert_dev = PUSH_NOTIFICATIONS_SETTINGS['APNS_CERTIFICATE_DEV']
+    apns_cert_password = PUSH_NOTIFICATIONS_SETTINGS['APNS_CERTIFICATE_PASSWORD']
+    topic = PUSH_NOTIFICATIONS_SETTINGS['APNS_TOPIC']
+    payload = Payload(alert=json.dumps(data), sound="default", badge=1)
+    client_prod = APNsClient(apns_cert_prod, use_sandbox=False, use_alternative_port=False, password=apns_cert_password)
+    client_dev = APNsClient(apns_cert_dev, use_sandbox=True, use_alternative_port=False, password=apns_cert_password)
+    
+    for ios_device in ios_devices:
+        token = ios_device.registration_id
+        success = False
+        try:
+            client_prod.send_notification(token, payload, topic)
+            success = True
+        except:
+            try:
+                client_dev.send_notification(token, payload, topic)
+                success = True
+            except Exception as e:
+                pass
+                #ios_device.active = False
+                #ios_device.save()
+        if success:
+            log = Log()
+            log.type = 'N'
+            log.group = ng_group
+            log.user = ios_device.user
+            log.description = "iOs notification (registration_id=%s) (subject=%s)" \
+                              % (token, ng_news.subject)
+            log.save()
 
 
 def send_notif(new_news, ng_group):

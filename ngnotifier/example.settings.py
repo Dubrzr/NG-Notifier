@@ -149,6 +149,9 @@ mail_conf = {
 PUSH_NOTIFICATIONS_SETTINGS = {
     'GCM_API_KEY': '<your api key>', # Google GCM
     'APNS_CERTIFICATE': '/path/to/your/certificate.pem', # Apple APNS
+    'APNS_CERTIFICATE_DEV': '/path/to/yout/certicate_dev.pem',
+    'APNS_CERTIFICATE_PASSWORD': None,
+    'APNS_TOPIC': 'org.mygroup.myapp'
 }
 
 
