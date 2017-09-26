@@ -1,7 +1,7 @@
 import smtplib
 import json
 from email.mime.text import MIMEText
-from ngnotifier.models import Log
+from ngnotifier.models import Log, NGNews
 from push_notifications.models import GCMDevice, APNSDevice
 
 from pushbullet import PushBullet
@@ -102,7 +102,37 @@ def send_pushbullet(followers, ng_group, ng_news):
             log.save()
 
 
+class CustomPayload():
+    def __init__(self, group, title, contents, badge, sound, news_id, author):
+        self.group = group
+        self.title = title
+        self.contents = contents
+        self.badge = badge
+        self.sound = sound
+        self.news_id = news_id
+        self.author = author
+    def dict(self):
+        return {
+            'aps': {
+                'alert': {
+                    'title': self.title,
+                    'subtitle': self.group,
+                    'body': self.author + ':\n' + self.contents.strip()
+                },
+                'badge': self.badge,
+                'sound': self.sound,
+                'news_id': self.news_id
+            }
+        }
+
+
 def send_pushs(followers, ng_group, ng_news):
+    father = ng_news
+    while father.father != '':
+        try:
+            father = NGNews.objects.get(message_id=father.father)
+        except NGNews.DoesNotExists:
+            break
     data = {
         'event_type': 'NEW_NEWS',
         'host': ng_group.host.host,
@@ -135,10 +165,9 @@ def send_pushs(followers, ng_group, ng_news):
     apns_cert_dev = PUSH_NOTIFICATIONS_SETTINGS['APNS_CERTIFICATE_DEV']
     apns_cert_password = PUSH_NOTIFICATIONS_SETTINGS['APNS_CERTIFICATE_PASSWORD']
     topic = PUSH_NOTIFICATIONS_SETTINGS['APNS_TOPIC']
-    payload = Payload(alert=json.dumps(data), sound="default", badge=1)
+    payload = CustomPayload(group=data['newsgroup'], title=data['subject'], contents=ng_news.contents, sound="default", badge=1, news_id=father.id, author=ng_news.email_from)
     client_prod = APNsClient(apns_cert_prod, use_sandbox=False, use_alternative_port=False, password=apns_cert_password)
     client_dev = APNsClient(apns_cert_dev, use_sandbox=True, use_alternative_port=False, password=apns_cert_password)
-    
     for ios_device in ios_devices:
         token = ios_device.registration_id
         success = False
@@ -150,6 +179,7 @@ def send_pushs(followers, ng_group, ng_news):
                 client_dev.send_notification(token, payload, topic)
                 success = True
             except Exception as e:
+                print(str(e))
                 pass
                 #ios_device.active = False
                 #ios_device.save()
