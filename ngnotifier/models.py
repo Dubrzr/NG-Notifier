@@ -367,18 +367,19 @@ class NGHost(models.Model):
 
         NGGroups = []
 
-        for group in grp_list:
+        for group_name in grp_list:
             if verbose:
-                print_msg('group', group)
+                print_msg('group', group_name)
             try:
-                NGGroups.append(NGGroup.objects.get(host=self, name=group))
+                ng_group = NGGroup.objects.get(host=self, name=group_name)
+                NGGroups.append(ng_group)
                 if verbose:
                     print_exists()
             except ObjectDoesNotExist:
                 try:
                     ng_group = NGGroup()
                     ng_group.host = self
-                    ng_group.name = group
+                    ng_group.name = group_name
                     ng_group.save()
                     NGGroups.append(ng_group)
                     self.nb_groups += 1
@@ -388,9 +389,15 @@ class NGHost(models.Model):
                 except Exception as e:
                     print_fail(e)
 
+        # Disable groups that are not found
         NGGroup.objects.all()\
             .exclude(id__in=[x.id for x in NGGroups])\
             .update(available=False)
+
+        # Enable groups that are found
+        NGGroup.objects.all()\
+            .filter(id__in=[x.id for x in NGGroups])\
+            .update(available=True)
 
         return NGGroups
 
@@ -417,7 +424,8 @@ class Log(models.Model):
         ('N', 'Notification'),
         ('P', 'Post'),
         ('UN', 'Update news'),
-        ('UG', 'Update groups')
+        ('UG', 'Update groups'),
+        ('US', 'Update stats')
     )
     type = models.CharField(choices=TYPES, max_length=2, blank=False, default=None)
     date = models.DateTimeField(auto_now_add=True)
