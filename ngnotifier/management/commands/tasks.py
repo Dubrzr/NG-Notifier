@@ -7,7 +7,7 @@ from django.conf import settings
 from apscheduler.schedulers.background import BackgroundScheduler
 
 from ngnotifier.settings import SECONDS_DELTA_NEWS, SECONDS_DELTA_GROUP
-from ngnotifier.tasks import update_news, update_hosts
+from ngnotifier.tasks import update_news, update_hosts, update_stats
 from ngnotifier.utils import bcolors
 
 class Command(BaseCommand):
@@ -44,6 +44,7 @@ class Command(BaseCommand):
         scheduler = BackgroundScheduler()
         scheduler.add_job(update_news, kwargs={'verbose':options['verbose'], 'notif':options['notifs']}, trigger='interval', seconds=SECONDS_DELTA_NEWS)
         scheduler.add_job(update_hosts, kwargs={'verbose':options['verbose']}, trigger='interval', seconds=SECONDS_DELTA_GROUP)
+        scheduler.add_job(update_stats, kwargs={'verbose':options['verbose']}, trigger='interval', seconds=SECONDS_DELTA_GROUP)
         scheduler.start()
         self.stdout.write('------------------------>> ' +
                           bcolors.OKGREEN + 'Done !\n\n' + bcolors.ENDC)
