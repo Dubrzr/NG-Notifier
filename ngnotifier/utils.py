@@ -1,10 +1,16 @@
-from datetime import datetime
+import datetime as dt
+import os
 import re
 from django.utils.html import escape
 import hashlib
 import nntplib
 from email.header import decode_header, make_header
 from ngnotifier.settings import hosts
+
+
+def modification_datetime(filepath):
+    t = os.path.getmtime(filepath)
+    return dt.datetime.fromtimestamp(t)
 
 
 def get_co(host, port, ssl, user, password, timeout):
@@ -35,18 +41,18 @@ def parse_nntp_date(str):
     ]
     for f in possible_formats:
         try:
-            return datetime.strptime(str, f)
+            return dt.datetime.strptime(str, f)
         except:
             pass
 
     # If it failed, try another one by deleting incorrect TZ time
     try:
         str_tmp = re.sub('(\+[0-2][0-9]:[0-5][0-9])', '', str)
-        return datetime.strptime(str_tmp, '%a, %d %b %Y %H:%M:%S %z (%Z)')
+        return dt.datetime.strptime(str_tmp, '%a, %d %b %Y %H:%M:%S %z (%Z)')
     except:
         # If it didn't worked either, just return current date!
         print_fail(None, 'Failed parsing date! (' + str + ')')
-        return datetime.now()
+        return dt.datetime.now()
 
 
 def get_list_from_references(references):
@@ -92,6 +98,7 @@ def get_decoded(str):
 
 
 def properly_decode_header(subject):
+    subject = get_encoded(subject).decode("utf8", "replace")
     contents = make_header(decode_header(subject))
     return str(contents)
 
@@ -150,6 +157,8 @@ def print_fail(e, msg=None):
         ((('(' + str(e) + ')') if e else '') if not msg else msg),
         bcolors.ENDC
     )
+    import traceback
+    traceback.print_stack()
 
 
 def print_rec(data):
@@ -192,7 +201,7 @@ def build_article(name, email, groups, subject, contents, father_news, encoding)
     res += 'From: ' + name + ' <' + email + '>' + '\r\n'
     res += 'Newsgroups: ' + ",".join(groups) + '\r\n'
     res += 'Subject: ' + subject + '\r\n'
-    res += 'Date: ' + datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
+    res += 'Date: ' + dt.datetime.now().strftime("%a, %d %b %Y %H:%M:%S") + '\r\n'
     res += ('References: ' + ''.join(get_list_from_references(father_news.references) + [father_news.message_id]) + '\r\n') if father_news else ''
     res += '\r\n'
     res += contents + '\r\n'

@@ -257,6 +257,8 @@ class NGGroup(models.Model):
                 return []
             raise ConnectionError('Could not connect to the server, please '
                                   'check your connection ({}).'.format(err))
+        if verbose:
+            print("NGGroup {} exists : checking last news...".format(self.name))
         already_existing_news = []
         new_news_list = []
         for id, over in overviews:

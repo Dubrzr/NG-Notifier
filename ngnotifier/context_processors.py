@@ -1,8 +1,12 @@
+import json
+import os
+import datetime as dt
+
 from django.contrib.sites.shortcuts import get_current_site
 from django.core.exceptions import ObjectDoesNotExist
 
 from ngnotifier import settings
-
+from ngnotifier.utils import modification_datetime
 
 # NEVER PUT SITE PRIVATE PARAMETERS !!
 from ngnotifier.models import User, Log
@@ -17,6 +21,21 @@ def size_fmt(num, suffix=''):
    return "%.1f%s%s" % (num, 'Y', suffix)
 
 def site_infos(request):
+    try:
+        last_un_update = Log.objects.filter(type='UN').latest('date').date.strftime("%d %m %y")
+    except ObjectDoesNotExist:
+        last_un_update = None
+
+    if os.path.isfile("cache.json"):
+        m_dt = modification_datetime("cache.json")
+        now = dt.datetime.now()
+        diff = now - m_dt
+        if diff < dt.timedelta(hours=12):
+            with open("cache.json", "r") as cachefile:
+                data = json.load(cachefile)
+            data['last_un_update'] = last_un_update
+            return data
+
     current_site = get_current_site(request)
     protocol = 'https'  # if request.is_secure() else 'http'
     domain = current_site.domain
@@ -24,13 +43,7 @@ def site_infos(request):
     count_android = Log.objects.filter(type='N', description__startswith='A').count()
     count_ios = Log.objects.filter(type='N', description__startswith='i').count()
     count = count_email + count_android + count_ios
-
-    try:
-        last_un_update = Log.objects.filter(type='UN').latest('date').date
-    except ObjectDoesNotExist:
-        last_un_update = None
-
-    return {
+    data = {
         'site_url': settings.SITE_URL,
         'site_url_prefix': settings.SITE_URL_PREFIX,
         'site_name': settings.SITE_NAME,
@@ -47,5 +60,10 @@ def site_infos(request):
         'nb_notifs_sent_android': count_android,
         'nb_notifs_sent_ios': count_ios,
         'nb_notifs_sent': count,
-        'last_un_update': last_un_update
     }
+    
+    with open("cache.json", "w+") as cachefile:
+        json.dump(data, cachefile)
+    
+    data['last_un_update'] = last_un_update
+    return data
